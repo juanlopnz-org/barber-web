@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #121212;
+    --foreground: #ffffff;
+    --primary: #D4AF37;
+    --primary-foreground: #121212;
+    --secondary: #1F1F1F;
+    --secondary-foreground: #ffffff;
+    --accent: #2A2A2A;
+    --accent-foreground: #D4AF37;
+    --muted: #2A2A2A;
+    --muted-foreground: #A0A0A0;
+    --card: #1E1E1E;
+    --card-foreground: #ffffff;
+    --border: #333333;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
