@@ -4,24 +4,90 @@
 
 @layer base {
   :root {
-    --background: #121212;
-    --foreground: #ffffff;
-    --primary: #D4AF37;
-    --primary-foreground: #121212;
-    --secondary: #1F1F1F;
+    --background: #ffffff;
+    --foreground: #384959;
+    --primary: #88bdf2;
+    --primary-foreground: #384959;
+    --secondary: #6a89a7;
     --secondary-foreground: #ffffff;
-    --accent: #2A2A2A;
-    --accent-foreground: #D4AF37;
-    --muted: #2A2A2A;
-    --muted-foreground: #A0A0A0;
-    --card: #1E1E1E;
-    --card-foreground: #ffffff;
-    --border: #333333;
+    --accent: #bdddfc;
+    --accent-foreground: #384959;
+    --muted: #eff6fd;
+    --muted-foreground: #6a89a7;
+    --card: #ffffff;
+    --card-foreground: #384959;
+    --border: rgba(106, 137, 167, 0.2);
+    --input: rgba(136, 189, 242, 0.16);
+    --ring: rgba(136, 189, 242, 0.5);
+    --success: #4e9c7f;
+    --warning: #d8a14d;
+    --destructive: #bf5b5b;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(136, 189, 242, 0.28), transparent 34%),
+      radial-gradient(circle at top right, rgba(189, 221, 252, 0.58), transparent 28%),
+      linear-gradient(180deg, #f7fbff 0%, #ffffff 32%, #f5f9fd 100%);
+    color: var(--foreground);
+    font-family: var(--font-sans), "Segoe UI", sans-serif;
+    text-rendering: optimizeLegibility;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)),
+      repeating-linear-gradient(
+        120deg,
+        rgba(136, 189, 242, 0.06) 0,
+        rgba(136, 189, 242, 0.06) 1px,
+        transparent 1px,
+        transparent 20px
+      );
+    opacity: 0.34;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  select {
+    @apply transition-all duration-200;
+  }
+
+  ::selection {
+    background: rgba(136, 189, 242, 0.35);
+    color: #384959;
   }
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+@layer utilities {
+  .surface-soft {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 255, 0.96));
+  }
+
+  .surface-muted {
+    background: linear-gradient(180deg, rgba(239, 246, 253, 0.88), rgba(255, 255, 255, 0.92));
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .shadow-rain {
+    box-shadow: 0 18px 40px rgba(56, 73, 89, 0.08);
+  }
 }
