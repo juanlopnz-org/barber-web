@@ -8,6 +8,10 @@ function resolveRole(email: string): Role {
   return "CUSTOMER";
 }
 
+function createMockToken(): string {
+  return `mock.${crypto.randomUUID()}.${Date.now().toString(36)}`;
+}
+
 export async function loginWithEmail(values: LoginFormValues): Promise<SessionUser> {
   await new Promise((resolve) => setTimeout(resolve, 600));
 
@@ -22,6 +26,7 @@ export async function loginWithEmail(values: LoginFormValues): Promise<SessionUs
           ? "Barber Demo"
           : "Juan Carlos",
     email: values.email,
+    token: createMockToken(),
     role,
     authenticated: true,
   };
@@ -36,6 +41,7 @@ export async function registerCustomer(
     id: crypto.randomUUID(),
     name: values.name,
     email: values.email,
+    token: createMockToken(),
     role: "CUSTOMER",
     authenticated: true,
   };

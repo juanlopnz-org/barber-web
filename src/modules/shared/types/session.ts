@@ -4,6 +4,7 @@ export type SessionUser = {
   id?: string;
   name?: string;
   email?: string;
+  token?: string;
   role: Role;
   authenticated: boolean;
 };

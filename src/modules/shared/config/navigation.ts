@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Calendar, Clock3, Home, Scissors, ShieldCheck, Users } from "lucide-react";
+import { Calendar, CalendarDays, Clock3, Home, Scissors, ShieldCheck, Users } from "lucide-react";
 import type { Role } from "@/modules/shared/types";
 
 export type NavigationItem = {
@@ -14,40 +14,40 @@ export const navigationByRole: Record<Exclude<Role, "GUEST">, NavigationItem[]> 
     {
       href: "/customer/dashboard",
       label: "Resumen",
-      description: "Tus próximas citas y accesos rápidos",
+      description: "Tus próximas citas",
       icon: Home,
     },
     {
       href: "/customer/book",
       label: "Reservar",
-      description: "Agenda un nuevo servicio",
+      description: "Agenda un servicio",
       icon: Calendar,
     },
     {
       href: "/customer/barbers",
       label: "Barberos",
-      description: "Consulta especialistas y disponibilidad",
+      description: "Conoce al equipo",
       icon: Users,
     },
   ],
   BARBER: [
     {
       href: "/barber/dashboard",
-      label: "Dashboard",
-      description: "Resumen de agenda e ingresos",
+      label: "Resumen",
+      description: "Tu día en una vista",
       icon: Home,
     },
     {
       href: "/barber/appointments",
       label: "Citas",
-      description: "Gestiona tus citas del día",
+      description: "Gestiona tu agenda",
       icon: Clock3,
     },
     {
-      href: "/barber/agenda",
-      label: "Agenda",
-      description: "Vista diaria y semanal",
-      icon: Calendar,
+      href: "/barber/schedule",
+      label: "Horario",
+      description: "Edita tu jornada y bloqueos",
+      icon: CalendarDays,
     },
   ],
   ADMIN: [
@@ -58,15 +58,21 @@ export const navigationByRole: Record<Exclude<Role, "GUEST">, NavigationItem[]> 
       icon: ShieldCheck,
     },
     {
+      href: "/admin/agenda",
+      label: "Agenda",
+      description: "Citas y disponibilidad por barbero",
+      icon: CalendarDays,
+    },
+    {
       href: "/admin/barbers",
       label: "Barberos",
-      description: "Gestiona equipo y horarios",
+      description: "Gestiona el equipo",
       icon: Users,
     },
     {
       href: "/admin/services",
       label: "Servicios",
-      description: "Mantén tu catálogo actualizado",
+      description: "Mantén el catálogo",
       icon: Scissors,
     },
   ],

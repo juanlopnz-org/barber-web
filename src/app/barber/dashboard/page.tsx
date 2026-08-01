@@ -18,9 +18,6 @@ export default function BarberDashboard() {
             <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
               Dashboard profesional
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-secondary">
-              Esta vista ya adopta el nuevo sistema visual y deja preparada la base para agenda, disponibilidad y cambios de estado por cita.
-            </p>
             <div className="mt-8 grid gap-4 md:grid-cols-3">
               {metrics.map((metric) => {
                 const Icon = metric.icon;

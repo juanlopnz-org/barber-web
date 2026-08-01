@@ -28,7 +28,7 @@ export const guestServices: Service[] = [
   {
     id: "service-1",
     name: "Corte premium",
-    duration: 45,
+    duration: 30,
     price: 65000,
     active: true,
   },
@@ -42,7 +42,7 @@ export const guestServices: Service[] = [
   {
     id: "service-3",
     name: "Experiencia completa",
-    duration: 75,
+    duration: 30,
     price: 98000,
     active: true,
   },

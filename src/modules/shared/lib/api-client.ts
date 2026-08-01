@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useSessionStore } from "@/store/session-store";
 import type { ApiErrorShape } from "@/modules/shared/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
@@ -11,8 +12,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" ? window.localStorage.getItem("token") : null;
+  const token = useSessionStore.getState().user.token;
 
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;

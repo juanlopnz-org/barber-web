@@ -2,27 +2,23 @@ import { Card, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Star, Clock } from "lucide-react"
 import Link from "next/link"
+import { guestBarbers } from "@/modules/guest/data/mock"
 
-const MOCK_BARBERS = [
-  { id: 1, name: "Carlos Style", specialty: "Fade & Barba", rating: 4.9 },
-  { id: 2, name: "Miguel Cuts", specialty: "Tijera Clásica", rating: 4.8 },
-  { id: 3, name: "David Pro", specialty: "Diseños & Color", rating: 4.7 },
-]
+const MOCK_TIME_SLOTS = ["10:00 AM", "11:30 AM", "04:00 PM"]
 
 export default function BarbersPage() {
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Nuestros Barberos</h1>
-        <p className="text-muted-foreground mt-2">Encuentra a tu profesional ideal y reserva tu turno.</p>
+        <p className="mt-2 text-secondary">Encuentra a tu profesional ideal y reserva tu turno.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {MOCK_BARBERS.map((barber) => (
+        {guestBarbers.map((barber) => (
           <Card key={barber.id} className="overflow-hidden">
             <div className="aspect-square bg-secondary relative">
-              {/* Imagen del barbero mock */}
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+              <div className="absolute inset-0 flex items-center justify-center text-white/70">
                 Foto {barber.name}
               </div>
             </div>
@@ -30,7 +26,7 @@ export default function BarbersPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-bold text-lg">{barber.name}</h3>
-                  <p className="text-sm text-muted-foreground">{barber.specialty}</p>
+                  <p className="text-sm text-secondary">{barber.specialty}</p>
                 </div>
                 <div className="flex items-center text-primary">
                   <Star className="h-4 w-4 fill-primary mr-1" />
@@ -38,13 +34,15 @@ export default function BarbersPage() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                {/* Horarios disponibles mock */}
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md">10:00 AM</span>
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md">11:30 AM</span>
-                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md">04:00 PM</span>
+                {MOCK_TIME_SLOTS.map((slot) => (
+                  <span key={slot} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {slot}
+                  </span>
+                ))}
               </div>
               <Button className="w-full" asChild>
-                <Link href={`/book?barber=${barber.id}`}>Reservar</Link>
+                <Link href={`/customer/book?barber=${barber.id}`}>Reservar</Link>
               </Button>
             </CardContent>
           </Card>

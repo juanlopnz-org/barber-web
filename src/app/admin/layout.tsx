@@ -3,13 +3,13 @@ import { Sidebar } from "@/components/layout/Sidebar"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
-export default function BarberLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <ProtectedRoute allowedRoles={["BARBER"]}>
+    <ProtectedRoute allowedRoles={["ADMIN"]}>
       <div className="min-h-screen bg-background">
         <Sidebar />
         <div className="md:pl-72 flex flex-col min-h-screen">

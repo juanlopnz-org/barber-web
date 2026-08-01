@@ -1,0 +1,58 @@
+import type { Appointment } from "@/modules/shared/types";
+
+export const customerAppointments: Appointment[] = [
+  {
+    id: "apt-cust-001",
+    barberId: "barber-1",
+    serviceId: "service-1",
+    startTime: "2026-07-12T15:30:00",
+    endTime: "2026-07-12T16:00:00",
+    status: "BOOKED",
+    customerId: "customer-1",
+  },
+  {
+    id: "apt-cust-002",
+    barberId: "barber-2",
+    serviceId: "service-2",
+    startTime: "2026-07-14T18:00:00",
+    endTime: "2026-07-14T18:30:00",
+    status: "BOOKED",
+    customerId: "customer-1",
+  },
+  {
+    id: "apt-cust-003",
+    barberId: "barber-1",
+    serviceId: "service-3",
+    startTime: "2026-06-28T10:00:00",
+    endTime: "2026-06-28T10:30:00",
+    status: "COMPLETED",
+    customerId: "customer-1",
+  },
+  {
+    id: "apt-cust-004",
+    barberId: "barber-3",
+    serviceId: "service-1",
+    startTime: "2026-06-14T16:00:00",
+    endTime: "2026-06-14T16:30:00",
+    status: "COMPLETED",
+    customerId: "customer-1",
+  },
+  {
+    id: "apt-cust-005",
+    barberId: "barber-2",
+    serviceId: "service-2",
+    startTime: "2026-05-30T11:00:00",
+    endTime: "2026-05-30T11:30:00",
+    status: "NO_SHOW",
+    customerId: "customer-1",
+  },
+  {
+    id: "apt-cust-006",
+    barberId: "barber-1",
+    serviceId: "service-3",
+    startTime: "2026-05-15T14:30:00",
+    endTime: "2026-05-15T15:00:00",
+    status: "COMPLETED",
+    customerId: "customer-1",
+  },
+];

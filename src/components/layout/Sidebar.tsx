@@ -7,22 +7,30 @@ import { cn } from "@/lib/utils"
 import { useUIStore } from "@/store/ui-store"
 import { useAuthSession } from "@/modules/auth/hooks/use-auth-session"
 import { navigationByRole } from "@/modules/shared/config/navigation"
+import type { Role } from "@/modules/shared/types"
+
+type AuthenticatedRole = Exclude<Role, "GUEST">
+
+const SEGMENT_TO_ROLE: Array<{ prefix: string; role: AuthenticatedRole }> = [
+  { prefix: "/admin", role: "ADMIN" },
+  { prefix: "/barber", role: "BARBER" },
+]
 
 export function Sidebar() {
   const pathname = usePathname()
   const { isSidebarOpen, setSidebarOpen } = useUIStore()
-  const { logout } = useAuthSession()
-  const role = pathname.startsWith("/barber")
-    ? "BARBER"
-    : pathname.startsWith("/admin")
-      ? "ADMIN"
-      : "CUSTOMER"
+  const { user, logout } = useAuthSession()
+  const segmentRole = SEGMENT_TO_ROLE.find((entry) => pathname.startsWith(entry.prefix))?.role
+  const role: AuthenticatedRole =
+    user.authenticated && user.role !== "GUEST"
+      ? user.role
+      : segmentRole ?? "CUSTOMER"
   const links = navigationByRole[role]
 
   return (
     <>
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-[#384959]/20 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -52,9 +60,7 @@ export function Sidebar() {
             {role === "BARBER" && "Gestiona tu agenda diaria con una experiencia limpia y enfocada."}
             {role === "ADMIN" && "Supervisa equipo, servicios y métricas desde un solo lugar."}
           </p>
-        </div>
-
-        <div className="flex h-screen flex-col px-4 py-5">
+        </div><div className="flex h-screen flex-col px-4 py-5">
           <nav className="space-y-2">
             {links.map((link) => {
               const Icon = link.icon
@@ -65,7 +71,7 @@ export function Sidebar() {
                   href={link.href}
                   className={cn(
                     "group flex items-start gap-3 rounded-2xl px-4 py-3 transition-all",
-                    isActive 
+                    isActive
                       ? "bg-white text-[#384959] shadow-soft"
                       : "text-white/72 hover:bg-white/8 hover:text-white"
                   )}
