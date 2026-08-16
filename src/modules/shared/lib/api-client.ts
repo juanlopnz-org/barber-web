@@ -24,13 +24,26 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error?.response?.status;
+
+    // Auto-logout on 401 to avoid stale authenticated UI with dead tokens
+    if (status === 401) {
+      const current = useSessionStore.getState().user;
+      if (current.authenticated) {
+        useSessionStore.getState().clearSession();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("auth:logout"));
+        }
+      }
+    }
+
     const payload: ApiErrorShape = {
       message:
         error?.response?.data?.message ||
         error?.message ||
         "No fue posible completar la solicitud.",
       code: error?.response?.data?.code,
-      status: error?.response?.status,
+      status,
       details: error?.response?.data,
     };
 

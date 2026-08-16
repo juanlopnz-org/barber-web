@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/store/session-store";
 import type { LoginFormValues } from "@/modules/auth/schemas/login-schema";
 import type { RegisterFormValues } from "@/modules/auth/schemas/register-schema";
-import { loginWithEmail, registerCustomer } from "@/modules/auth/services/mock-auth";
-import type { Role } from "@/modules/shared/types";
+import { loginApi, registerApi } from "@/modules/auth/services/api-auth";
+import type { ApiErrorShape, Role } from "@/modules/shared/types";
 
 const roleHome: Record<Role, string> = {
   ADMIN: "/admin/dashboard",
@@ -22,7 +22,7 @@ export function useAuthSession() {
   const clearSession = useSessionStore((state) => state.clearSession);
 
   async function login(values: LoginFormValues) {
-    const session = await loginWithEmail(values);
+    const session = await loginApi(values);
     setUser(session);
     router.push(roleHome[session.role]);
     router.refresh();
@@ -30,7 +30,7 @@ export function useAuthSession() {
   }
 
   async function register(values: RegisterFormValues) {
-    const session = await registerCustomer(values);
+    const session = await registerApi(values);
     setUser(session);
     router.push(roleHome[session.role]);
     router.refresh();
@@ -43,6 +43,13 @@ export function useAuthSession() {
     router.refresh();
   }
 
+  function getErrorMessage(err: unknown): string {
+    const apiError = err as ApiErrorShape | undefined;
+    if (apiError?.message) return apiError.message;
+    if (err instanceof Error) return err.message;
+    return "No fue posible completar la solicitud.";
+  }
+
   return {
     user,
     hasHydrated,
@@ -51,5 +58,6 @@ export function useAuthSession() {
     login,
     register,
     logout,
+    getErrorMessage,
   };
 }

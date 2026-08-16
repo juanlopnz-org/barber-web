@@ -15,7 +15,7 @@ import {
 
 export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState("");
-  const { register: registerUser } = useAuthSession();
+  const { register: registerUser, getErrorMessage } = useAuthSession();
   const {
     register,
     handleSubmit,
@@ -35,8 +35,8 @@ export default function RegisterPage() {
     try {
       setErrorMessage("");
       await registerUser(values);
-    } catch {
-      setErrorMessage("No fue posible crear la cuenta. Intenta de nuevo.");
+    } catch (err) {
+      setErrorMessage(getErrorMessage(err));
     }
   });
 

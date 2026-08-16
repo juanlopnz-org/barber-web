@@ -13,7 +13,7 @@ import { loginSchema, type LoginFormValues } from "@/modules/auth/schemas/login-
 
 export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState("");
-  const { login } = useAuthSession();
+  const { login, getErrorMessage } = useAuthSession();
   const {
     register,
     handleSubmit,
@@ -30,8 +30,8 @@ export default function LoginPage() {
     try {
       setErrorMessage("");
       await login(values);
-    } catch {
-      setErrorMessage("No fue posible iniciar sesión. Intenta de nuevo.");
+    } catch (err) {
+      setErrorMessage(getErrorMessage(err));
     }
   });
 

@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, Calendar, Clock3, Scissors, ShieldCheck, Star, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { guestBarbers, guestServices } from "@/modules/guest/data/mock";
+import { useBarbers } from "@/modules/shared/hooks/use-barbers";
+import { useServices } from "@/modules/shared/hooks/use-services";
 import { guestNavigation } from "@/modules/shared/config/navigation";
 
 const benefits = [
@@ -24,6 +27,9 @@ const benefits = [
 ];
 
 export default function LandingPage() {
+  const { data: barbers = [] } = useBarbers();
+  const { data: services = [] } = useServices();
+
   return (
     <main className="relative overflow-hidden">
       <section className="mx-auto grid min-h-screen max-w-7xl gap-10 px-6 py-10 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-14">
@@ -106,10 +112,10 @@ export default function LandingPage() {
                 <div className="rounded-2xl border border-border bg-white/80 p-5">
                   <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-secondary">
                     <Users className="h-4 w-4" />
-                    Barberos destacados
+                    Bbs destacados
                   </div>
                   <div className="space-y-3">
-                    {guestBarbers.slice(0, 2).map((barber) => (
+                    {barbers.slice(0, 2).map((barber) => (
                       <div key={barber.id} className="flex items-center justify-between rounded-2xl bg-muted px-4 py-3">
                         <div>
                           <p className="font-medium text-foreground">{barber.name}</p>
@@ -127,10 +133,10 @@ export default function LandingPage() {
                 <div className="rounded-2xl border border-border bg-white/80 p-5">
                   <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-secondary">
                     <Scissors className="h-4 w-4" />
-                    Servicios frecuentes
+                    Ssos frecuentes
                   </div>
                   <div className="space-y-3">
-                    {guestServices.slice(0, 2).map((service) => (
+                    {services.slice(0, 2).map((service) => (
                       <div key={service.id} className="rounded-2xl bg-muted px-4 py-3">
                         <div className="flex items-center justify-between">
                           <p className="font-medium text-foreground">{service.name}</p>

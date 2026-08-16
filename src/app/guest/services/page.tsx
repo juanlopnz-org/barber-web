@@ -1,8 +1,12 @@
+"use client";
+
 import { Clock3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { guestServices } from "@/modules/guest/data/mock";
+import { useServices } from "@/modules/shared/hooks/use-services";
 
 export default function GuestServicesPage() {
+  const { data: services = [], isLoading } = useServices();
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
       <div className="mb-8">
@@ -12,24 +16,28 @@ export default function GuestServicesPage() {
           Catálogo público inicial para el módulo de invitado, con jerarquía visual clara y tonos suaves.
         </p>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {guestServices.map((service) => (
-          <Card key={service.id} className="border-white/70 bg-white/88">
-            <CardHeader>
-              <CardTitle>{service.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2 text-sm text-secondary">
-                <Clock3 className="h-4 w-4" />
-                {service.duration} minutos
-              </div>
-              <p className="mt-4 text-3xl font-semibold text-foreground">
-                ${service.price.toLocaleString("es-CO")}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {isLoading ? (
+        <p className="text-sm text-secondary">Cargando servicios…</p>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {services.map((service) => (
+            <Card key={service.id} className="border-white/70 bg-white/88">
+              <CardHeader>
+                <CardTitle>{service.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2 text-sm text-secondary">
+                  <Clock3 className="h-4 w-4" />
+                  {service.duration} minutos
+                </div>
+                <p className="mt-4 text-3xl font-semibold text-foreground">
+                  ${service.price.toLocaleString("es-CO")}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </main>
   );
 }
