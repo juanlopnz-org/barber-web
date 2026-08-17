@@ -5,6 +5,8 @@ import { persist } from "zustand/middleware";
 import type { SessionUser } from "@/modules/shared/types";
 import { guestSession } from "@/modules/shared/types";
 
+const STORAGE_KEY = "barber-system-session";
+
 interface SessionState {
   user: SessionUser;
   hasHydrated: boolean;
@@ -19,11 +21,22 @@ export const useSessionStore = create<SessionState>()(
       user: guestSession,
       hasHydrated: false,
       setUser: (user) => set({ user }),
-      clearSession: () => set({ user: guestSession }),
+      clearSession: () => {
+        // Hard reset: clear the persisted snapshot in localStorage so a
+        // stale token can't survive even if state is restored elsewhere.
+        if (typeof window !== "undefined") {
+          try {
+            window.localStorage.removeItem(STORAGE_KEY);
+          } catch {
+            // ignore quota / privacy errors
+          }
+        }
+        set({ user: guestSession });
+      },
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
-      name: "barber-system-session",
+      name: STORAGE_KEY,
       partialize: (state) => ({ user: state.user }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

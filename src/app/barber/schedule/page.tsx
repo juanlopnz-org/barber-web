@@ -1,8 +1,10 @@
+"use client";
+
 import { CalendarDays, Clock3, Plus, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { todaySchedule, formatDuration } from "@/modules/barber/data/schedule";
+import { todaySchedule, formatDuration, formatMinutesToClock } from "@/modules/barber/data/schedule";
 
 export default function BarberSchedulePage() {
   const totalMinutes =
@@ -47,14 +49,12 @@ export default function BarberSchedulePage() {
                 </p>
               </div>
               <span
-                className={`inline-flex h-7 w-12 items-center rounded-full px-1 transition-colors ${
-                  todaySchedule.isAvailable ? "bg-success/30" : "bg-muted-foreground/30"
-                }`}
+                className={`inline-flex h-7 w-12 items-center rounded-full px-1 transition-colors ${todaySchedule.isAvailable ? "bg-success/30" : "bg-muted-foreground/30"
+                  }`}
               >
                 <span
-                  className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                    todaySchedule.isAvailable ? "translate-x-5" : "translate-x-0"
-                  }`}
+                  className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${todaySchedule.isAvailable ? "translate-x-5" : "translate-x-0"
+                    }`}
                 />
               </span>
             </div>
@@ -67,12 +67,14 @@ export default function BarberSchedulePage() {
               </div>
               <div className="rounded-2xl border border-border bg-white/82 p-3">
                 <p className="text-xs text-secondary">Bloqueado</p>
-                <p className="mt-1 text-lg font-semibold text-foreground">
-                  {formatDuration("00:00", String(totalMinutes).padStart(2, "0"))}
+                <p className="mt-1 text-lg font-semibold text-foreground" >
+                  {formatDuration("00:00", formatMinutesToClock(totalMinutes))}
                 </p>
               </div>
             </div>
-            <Button className="w-full">Guardar jornada</Button>
+            <Button
+              className="w-full"
+            >Guardar jornada</Button>
           </CardContent>
         </Card>
 

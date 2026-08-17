@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/store/session-store";
 import type { LoginFormValues } from "@/modules/auth/schemas/login-schema";
 import type { RegisterFormValues } from "@/modules/auth/schemas/register-schema";
-import { loginApi, registerApi } from "@/modules/auth/services/api-auth";
+import {
+  loginApi,
+  registerApi,
+  logoutApi,
+} from "@/modules/auth/services/api-auth";
 import type { ApiErrorShape, Role } from "@/modules/shared/types";
 
 const roleHome: Record<Role, string> = {
@@ -37,7 +41,11 @@ export function useAuthSession() {
     return session;
   }
 
-  function logout() {
+  async function logout() {
+    // Invalidate Supabase session server-side first (best-effort).
+    await logoutApi();
+    // Then clear local state — this also removes the persisted localStorage
+    // entry so a stale token can't be rehydrated.
     clearSession();
     router.push("/login");
     router.refresh();

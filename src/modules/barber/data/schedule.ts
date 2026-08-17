@@ -52,3 +52,9 @@ export function formatDuration(start: string, end: string) {
   const m = minutes % 60;
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
 }
+
+export const formatMinutesToClock = (time: number) => {
+  const h = Math.floor(time / 60);
+  const m = time % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+};
