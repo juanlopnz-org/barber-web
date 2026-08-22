@@ -38,7 +38,7 @@ function flushPendingQueue(error: unknown, newToken?: string) {
       reject(error);
     } else if (newToken && config.headers) {
       config.headers.Authorization = `Bearer ${newToken}`;
-      resolve(api.request(config));
+      void api.request(config).then(resolve).catch(reject);
     } else {
       reject(new Error("Unauthorized"));
     }
@@ -148,12 +148,15 @@ api.interceptors.response.use(
       }
     }
 
+    const responseData = error?.response?.data as
+      | { message?: string; code?: string }
+      | undefined;
     const payload: ApiErrorShape = {
       message:
-        error?.response?.data?.message ||
+        responseData?.message ||
         error?.message ||
         "No fue posible completar la solicitud.",
-      code: (error?.response?.data as { code?: string } | undefined)?.code,
+      code: responseData?.code,
       status,
       details: error?.response?.data,
     };
