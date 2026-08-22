@@ -23,6 +23,8 @@ export function useCreateAppointment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      // Refresh availability grids so the just-booked slot disappears.
+      queryClient.invalidateQueries({ queryKey: ["available-slots"] });
     },
   });
 }

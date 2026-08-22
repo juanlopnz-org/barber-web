@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useMemo, useRef, useState } from "react";
 import {
+  ArrowLeft,
   CalendarDays,
   Clock3,
   Loader2,
@@ -15,7 +18,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useSessionStore } from "@/store/session-store";
+import { useBarbers } from "@/modules/shared/hooks/use-barbers";
+import { useAuthSession } from "@/modules/auth/hooks/use-auth-session";
 import {
   useBlockedTimes,
   useCreateBlockedTime,
@@ -27,7 +31,6 @@ import {
   useSchedules,
   useUpdateSchedule,
 } from "@/modules/shared/hooks/use-schedules";
-import { useAuthSession } from "@/modules/auth/hooks/use-auth-session";
 import {
   DAYS_OF_WEEK,
   clockToMinutes,
@@ -38,22 +41,14 @@ import {
 import type { BlockedTime, Schedule } from "@/modules/shared/types";
 
 // ----------------------------------------------------------------------------
-//  Schemas (RHF + Zod)
+//  Schemas
 // ----------------------------------------------------------------------------
 
 const scheduleSchema = z
   .object({
-    dayOfWeek: z
-      .number()
-      .int()
-      .min(0)
-      .max(6),
-    startTime: z
-      .string()
-      .regex(/^\d{2}:\d{2}$/, "Formato HH:mm requerido"),
-    endTime: z
-      .string()
-      .regex(/^\d{2}:\d{2}$/, "Formato HH:mm requerido"),
+    dayOfWeek: z.number().int().min(0).max(6),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/),
   })
   .refine(
     (v) => {
@@ -63,18 +58,13 @@ const scheduleSchema = z
     },
     { message: "La hora final debe ser mayor a la inicial", path: ["endTime"] },
   );
-
 type ScheduleFormValues = z.infer<typeof scheduleSchema>;
 
 const blockedTimeSchema = z
   .object({
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha requerida"),
-    startTime: z
-      .string()
-      .regex(/^\d{2}:\d{2}$/, "Formato HH:mm requerido"),
-    endTime: z
-      .string()
-      .regex(/^\d{2}:\d{2}$/, "Formato HH:mm requerido"),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/),
     reason: z.string().max(120).optional(),
   })
   .refine(
@@ -85,23 +75,24 @@ const blockedTimeSchema = z
     },
     { message: "La hora final debe ser mayor a la inicial", path: ["endTime"] },
   );
-
 type BlockedTimeFormValues = z.infer<typeof blockedTimeSchema>;
 
 // ----------------------------------------------------------------------------
 //  Page
 // ----------------------------------------------------------------------------
 
-export default function BarberSchedulePage() {
-  const user = useSessionStore((state) => state.user);
+export default function AdminBarberSchedulePage() {
+  const params = useParams<{ id: string }>();
+  const barberId = params?.id ?? "";
+  const { data: barbers = [], isLoading: loadingBarbers } = useBarbers();
   const { getErrorMessage } = useAuthSession();
-  const barberId = user.barberId ?? null;
+
+  const barber = useMemo(
+    () => barbers.find((b) => b.id === barberId) ?? null,
+    [barbers, barberId],
+  );
 
   const todayIso = new Date().toISOString().slice(0, 10);
-
-  // ---------------------------------------------------------------------------
-  //  Queries
-  // ---------------------------------------------------------------------------
 
   const {
     data: schedules = [],
@@ -120,49 +111,26 @@ export default function BarberSchedulePage() {
     from: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
   });
 
-  // ---------------------------------------------------------------------------
-  //  Mutations
-  // ---------------------------------------------------------------------------
-
-  const createSchedule = useCreateSchedule(barberId ?? "");
-  const updateSchedule = useUpdateSchedule(barberId ?? "");
-  const deleteSchedule = useDeleteSchedule(barberId ?? "");
-  const createBlock = useCreateBlockedTime(barberId ?? "");
-  const deleteBlock = useDeleteBlockedTime(barberId ?? "");
-
-  // ---------------------------------------------------------------------------
-  //  Dialog refs (native <dialog>)
-  // ---------------------------------------------------------------------------
+  const createSchedule = useCreateSchedule(barberId);
+  const updateSchedule = useUpdateSchedule(barberId);
+  const deleteSchedule = useDeleteSchedule(barberId);
+  const createBlock = useCreateBlockedTime(barberId);
+  const deleteBlock = useDeleteBlockedTime(barberId);
 
   const scheduleDialogRef = useRef<HTMLDialogElement | null>(null);
   const blockDialogRef = useRef<HTMLDialogElement | null>(null);
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(
-    null,
-  );
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
 
-  // ---------------------------------------------------------------------------
-  //  Schedule form
-  // ---------------------------------------------------------------------------
-
+  // ----- schedule form -----
   const scheduleForm = useForm<ScheduleFormValues>({
     resolver: zodResolver(scheduleSchema),
-    defaultValues: {
-      dayOfWeek: 1,
-      startTime: "09:00",
-      endTime: "18:00",
-    },
+    defaultValues: { dayOfWeek: 1, startTime: "09:00", endTime: "18:00" },
   });
-
   function openCreateSchedule() {
     setEditingSchedule(null);
-    scheduleForm.reset({
-      dayOfWeek: 1,
-      startTime: "09:00",
-      endTime: "18:00",
-    });
+    scheduleForm.reset({ dayOfWeek: 1, startTime: "09:00", endTime: "18:00" });
     scheduleDialogRef.current?.showModal();
   }
-
   function openEditSchedule(s: Schedule) {
     setEditingSchedule(s);
     scheduleForm.reset({
@@ -172,7 +140,6 @@ export default function BarberSchedulePage() {
     });
     scheduleDialogRef.current?.showModal();
   }
-
   async function onSubmitSchedule(values: ScheduleFormValues) {
     try {
       const payload = {
@@ -181,10 +148,7 @@ export default function BarberSchedulePage() {
         endMinutes: clockToMinutes(values.endTime)!,
       };
       if (editingSchedule) {
-        await updateSchedule.mutateAsync({
-          id: editingSchedule.id,
-          input: payload,
-        });
+        await updateSchedule.mutateAsync({ id: editingSchedule.id, input: payload });
       } else {
         await createSchedule.mutateAsync(payload);
       }
@@ -194,38 +158,21 @@ export default function BarberSchedulePage() {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  //  Block form
-  // ---------------------------------------------------------------------------
-
+  // ----- block form -----
   const blockForm = useForm<BlockedTimeFormValues>({
     resolver: zodResolver(blockedTimeSchema),
-    defaultValues: {
-      date: todayIso,
-      startTime: "12:00",
-      endTime: "13:00",
-      reason: "",
-    },
+    defaultValues: { date: todayIso, startTime: "12:00", endTime: "13:00", reason: "" },
   });
-
   function openCreateBlock() {
-    blockForm.reset({
-      date: todayIso,
-      startTime: "12:00",
-      endTime: "13:00",
-      reason: "",
-    });
+    blockForm.reset({ date: todayIso, startTime: "12:00", endTime: "13:00", reason: "" });
     blockDialogRef.current?.showModal();
   }
-
   async function onSubmitBlock(values: BlockedTimeFormValues) {
     try {
       const startTime = localDateTimeToUtcIso(values.date, values.startTime);
       const endTime = localDateTimeToUtcIso(values.date, values.endTime);
       if (!startTime || !endTime) {
-        blockForm.setError("root", {
-          message: "Fecha u hora inválida",
-        });
+        blockForm.setError("root", { message: "Fecha u hora inválida" });
         return;
       }
       await createBlock.mutateAsync({
@@ -239,55 +186,57 @@ export default function BarberSchedulePage() {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  //  Derived state (computed unconditionally — must run before any guard)
-  // ---------------------------------------------------------------------------
+  if (loadingBarbers) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
-  const schedulesByDay = useMemo(() => {
-    const map = new Map<number, Schedule[]>();
-    for (const s of schedules) {
-      const arr = map.get(s.dayOfWeek) ?? [];
-      arr.push(s);
-      map.set(s.dayOfWeek, arr);
-    }
-    return map;
-  }, [schedules]);
-
-  const totalWeekMinutes = schedules.reduce(
-    (sum, s) => sum + (s.endMinutes - s.startMinutes),
-    0,
-  );
-
-  const upcomingBlocks = useMemo(
-    () =>
-      blockedTimes.filter(
-        (b) => new Date(b.endTime).getTime() >= Date.now(),
-      ),
-    [blockedTimes],
-  );
-
-  // ---------------------------------------------------------------------------
-  //  Render: guard
-  // ---------------------------------------------------------------------------
-
-  if (!barberId) {
+  if (!barber) {
     return (
       <Card>
-        <CardContent className="p-6 text-sm text-muted-foreground">
-          Tu cuenta no está vinculada a un barbero. Pide al administrador que
-          vincule tu perfil a un barbero para gestionar horarios.
+        <CardContent className="space-y-3 p-6">
+          <p className="text-sm text-muted-foreground">Barbero no encontrado.</p>
+          <Button variant="outline" asChild={false}>
+            <Link href="/admin/barbers">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver
+            </Link>
+          </Button>
         </CardContent>
       </Card>
     );
   }
 
-  // ---------------------------------------------------------------------------
-  //  Render: main
-  // ---------------------------------------------------------------------------
+  const schedulesByDay = new Map<number, Schedule[]>();
+  for (const s of schedules) {
+    const arr = schedulesByDay.get(s.dayOfWeek) ?? [];
+    arr.push(s);
+    schedulesByDay.set(s.dayOfWeek, arr);
+  }
+  const totalWeekMinutes = schedules.reduce(
+    (sum, s) => sum + (s.endMinutes - s.startMinutes),
+    0,
+  );
+  const upcomingBlocks = blockedTimes.filter(
+    (b) => new Date(b.endTime).getTime() >= Date.now(),
+  );
 
   return (
     <div className="space-y-6">
-      {/* ---------------------- Header ---------------------- */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" asChild={false}>
+          <Link href="/admin/barbers">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Barberos
+          </Link>
+        </Button>
+        <span className="text-muted-foreground">/</span>
+        <span className="text-sm font-medium text-foreground">{barber.name}</span>
+      </div>
+
       <Card>
         <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
@@ -296,9 +245,8 @@ export default function BarberSchedulePage() {
               Horario semanal
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              Define los días y horas en que atiendes clientes. Los clientes
-              solo podrán reservar dentro de estas ventanas y fuera de tus
-              bloqueos.
+              Disponibilidad de {barber.name}. Los clientes solo pueden reservar
+              dentro de estas ventanas y fuera de los bloqueos manuales.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -307,13 +255,12 @@ export default function BarberSchedulePage() {
             ) : null}
             <Button onClick={openCreateSchedule}>
               <Plus className="mr-2 h-4 w-4" />
-              Nuevo bloque de horario
+              Nuevo bloque
             </Button>
           </div>
         </CardHeader>
       </Card>
 
-      {/* ---------------------- Weekly grid ---------------------- */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {DAYS_OF_WEEK.map((day) => {
           const slots = schedulesByDay.get(day.value) ?? [];
@@ -323,7 +270,7 @@ export default function BarberSchedulePage() {
                 <CardTitle className="flex items-center justify-between text-base">
                   <span>{day.label}</span>
                   <span className="text-xs font-normal text-muted-foreground">
-                    {slots.length} bloque{slots.length === 1 ? "" : "s"}
+                    {slots.length}
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -332,7 +279,7 @@ export default function BarberSchedulePage() {
                   <div className="h-12 animate-pulse rounded-xl bg-muted/60" />
                 ) : slots.length === 0 ? (
                   <p className="rounded-xl border border-dashed border-border bg-white/60 p-3 text-xs text-muted-foreground">
-                    No atiendes este día
+                    Sin horario
                   </p>
                 ) : (
                   slots.map((s) => (
@@ -345,12 +292,6 @@ export default function BarberSchedulePage() {
                         <span className="font-mono text-sm">
                           {minutesToClock(s.startMinutes)} –{" "}
                           {minutesToClock(s.endMinutes)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          ({formatClockRange(
-                            minutesToClock(s.startMinutes),
-                            minutesToClock(s.endMinutes),
-                          )})
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
@@ -367,16 +308,9 @@ export default function BarberSchedulePage() {
                           variant="ghost"
                           aria-label="Eliminar"
                           onClick={() => {
-                            if (
-                              window.confirm(
-                                `¿Eliminar el bloque ${minutesToClock(
-                                  s.startMinutes,
-                                )} – ${minutesToClock(s.endMinutes)}?`,
-                              )
-                            ) {
+                            if (window.confirm("¿Eliminar este bloque?")) {
                               deleteSchedule.mutate(s.id, {
-                                onError: (err) =>
-                                  window.alert(getErrorMessage(err)),
+                                onError: (err) => window.alert(getErrorMessage(err)),
                               });
                             }
                           }}
@@ -393,7 +327,6 @@ export default function BarberSchedulePage() {
         })}
       </div>
 
-      {/* ---------------------- Stats ---------------------- */}
       <Card>
         <CardContent className="flex items-center justify-between p-5 text-sm">
           <span className="text-muted-foreground">
@@ -406,7 +339,6 @@ export default function BarberSchedulePage() {
         </CardContent>
       </Card>
 
-      {/* ---------------------- Blocked times ---------------------- */}
       <Card>
         <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -414,10 +346,6 @@ export default function BarberSchedulePage() {
               <Clock3 className="h-5 w-5 text-primary" />
               Bloqueos manuales
             </CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Bloqueos puntuales (almuerzo, reuniones, vacaciones) que impiden
-              reservar en ese rango horario.
-            </p>
           </div>
           <Button variant="outline" onClick={openCreateBlock}>
             <Plus className="mr-2 h-4 w-4" />
@@ -429,8 +357,7 @@ export default function BarberSchedulePage() {
             <div className="h-12 animate-pulse rounded-xl bg-muted/60" />
           ) : upcomingBlocks.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border bg-white/60 p-4 text-sm text-muted-foreground">
-              No tienes bloqueos próximos. Los clientes pueden reservar en
-              cualquier horario dentro de tu jornada.
+              Sin bloqueos próximos.
             </p>
           ) : (
             upcomingBlocks.map((b) => (
@@ -450,7 +377,7 @@ export default function BarberSchedulePage() {
         </CardContent>
       </Card>
 
-      {/* ---------------------- Dialog: Schedule ---------------------- */}
+      {/* Dialog: Schedule */}
       <dialog
         ref={scheduleDialogRef}
         className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
@@ -463,7 +390,6 @@ export default function BarberSchedulePage() {
           <h2 className="text-lg font-semibold">
             {editingSchedule ? "Editar bloque de horario" : "Nuevo bloque de horario"}
           </h2>
-
           <div className="space-y-2">
             <label className="text-sm font-medium">Día de la semana</label>
             <select
@@ -477,7 +403,6 @@ export default function BarberSchedulePage() {
               ))}
             </select>
           </div>
-
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Hora inicio</label>
@@ -498,13 +423,11 @@ export default function BarberSchedulePage() {
               ) : null}
             </div>
           </div>
-
           {scheduleForm.formState.errors.root ? (
             <p className="text-sm text-destructive">
               {scheduleForm.formState.errors.root.message}
             </p>
           ) : null}
-
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
@@ -513,7 +436,10 @@ export default function BarberSchedulePage() {
             >
               Cancelar
             </button>
-            <Button type="submit" disabled={createSchedule.isPending || updateSchedule.isPending}>
+            <Button
+              type="submit"
+              disabled={createSchedule.isPending || updateSchedule.isPending}
+            >
               {createSchedule.isPending || updateSchedule.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -529,7 +455,7 @@ export default function BarberSchedulePage() {
         </form>
       </dialog>
 
-      {/* ---------------------- Dialog: BlockedTime ---------------------- */}
+      {/* Dialog: BlockedTime */}
       <dialog
         ref={blockDialogRef}
         className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
@@ -540,12 +466,10 @@ export default function BarberSchedulePage() {
           onSubmit={blockForm.handleSubmit(onSubmitBlock)}
         >
           <h2 className="text-lg font-semibold">Nuevo bloqueo</h2>
-
           <div className="space-y-2">
             <label className="text-sm font-medium">Fecha</label>
             <Input type="date" min={todayIso} {...blockForm.register("date")} />
           </div>
-
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Hora inicio</label>
@@ -561,23 +485,15 @@ export default function BarberSchedulePage() {
               ) : null}
             </div>
           </div>
-
           <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Motivo (opcional)
-            </label>
-            <Input
-              placeholder="Almuerzo, reunión, vacaciones…"
-              {...blockForm.register("reason")}
-            />
+            <label className="text-sm font-medium">Motivo (opcional)</label>
+            <Input placeholder="Almuerzo, reunión…" {...blockForm.register("reason")} />
           </div>
-
           {blockForm.formState.errors.root ? (
             <p className="text-sm text-destructive">
               {blockForm.formState.errors.root.message}
             </p>
           ) : null}
-
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
@@ -619,7 +535,6 @@ function BlockedTimeRow({
   });
   const fmt = (d: Date) =>
     d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
-
   return (
     <div className="flex items-center justify-between rounded-xl border border-border bg-white/82 p-3">
       <div className="flex items-center gap-3">

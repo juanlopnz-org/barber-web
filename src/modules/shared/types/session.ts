@@ -8,6 +8,10 @@ export type SessionUser = {
   refreshToken?: string;
   role: Role;
   authenticated: boolean;
+  /** UUID of the linked Barber record (when role === BARBER). */
+  barberId?: string | null;
+  /** UUID of the linked Customer record (when role === CUSTOMER). */
+  customerId?: string | null;
 };
 
 export const guestSession: SessionUser = {

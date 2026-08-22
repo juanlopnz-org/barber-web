@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserRound } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { TimeSlotGrid } from "@/modules/booking/components/TimeSlotGrid";
 import { useBarbers } from "@/modules/shared/hooks/use-barbers";
 import { useServices } from "@/modules/shared/hooks/use-services";
 import { useCreateAppointment } from "@/modules/shared/hooks/use-create-appointment";
+import { useAvailableSlots } from "@/modules/shared/hooks/use-available-slots";
 import { useSessionStore } from "@/store/session-store";
 import { useAuthSession } from "@/modules/auth/hooks/use-auth-session";
 
@@ -50,27 +52,55 @@ export function BookingForm({
     defaults.preferredBarberId ?? barbers[0]?.id ?? ""
   );
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   const isPrefilled = Boolean(defaults.name || defaults.email || defaults.phone);
+
+  // Reset the selected slot whenever any of the slot-affecting inputs change
+  // so the user can never submit a stale slot that no longer matches the
+  // current barber/service/date combination.
+  useEffect(() => {
+    setSelectedSlot(null);
+  }, [barberId, serviceId, date]);
+
+  // When barbers/services load asynchronously, initialize the selects with
+  // their first id (the original useState initializer runs once before the
+  // queries resolve).
+  useEffect(() => {
+    if (!serviceId && services[0]?.id) setServiceId(services[0].id);
+  }, [services, serviceId]);
+  useEffect(() => {
+    if (!barberId && !defaults.preferredBarberId && barbers[0]?.id) {
+      setBarberId(barbers[0].id);
+    }
+  }, [barbers, barberId, defaults.preferredBarberId]);
+
+  const {
+    data: slotsData,
+    isLoading: loadingSlots,
+    isFetching: fetchingSlots,
+  } = useAvailableSlots({
+    barberId,
+    date,
+    serviceId,
+  });
+  const slots = slotsData?.slots ?? [];
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setErrorMessage("");
 
-    if (!serviceId || !barberId || !date || !time) {
-      setErrorMessage("Selecciona servicio, barbero, fecha y hora.");
+    if (!serviceId || !barberId || !date || !selectedSlot) {
+      setErrorMessage("Selecciona servicio, barbero, fecha y un horario disponible.");
       return;
     }
-
-    const startTime = new Date(`${date}T${time}:00.000Z`).toISOString();
 
     try {
       await createAppointment.mutateAsync({
         barberId,
         serviceId,
-        startTime,
+        startTime: selectedSlot,
         customerId: user.authenticated ? user.id : undefined,
         guestName: user.authenticated ? undefined : name,
         guestPhone: user.authenticated ? undefined : phone,
@@ -153,15 +183,36 @@ export function BookingForm({
               ))}
             </select>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Fecha</label>
-              <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Fecha</label>
+            <Input
+              type="date"
+              value={date}
+              min={new Date().toISOString().slice(0, 10)}
+              onChange={(event) => setDate(event.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-foreground">
+                Horario disponible
+              </label>
+              {fetchingSlots && !loadingSlots ? (
+                <span className="text-xs text-muted-foreground">Actualizando…</span>
+              ) : null}
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Hora</label>
-              <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
-            </div>
+            {!barberId || !serviceId || !date ? (
+              <p className="rounded-2xl border border-dashed border-border bg-white/60 p-4 text-sm text-muted-foreground">
+                Selecciona barbero, servicio y fecha para ver los horarios disponibles.
+              </p>
+            ) : (
+              <TimeSlotGrid
+                slots={slots}
+                selected={selectedSlot}
+                onSelect={setSelectedSlot}
+                loading={loadingSlots}
+              />
+            )}
           </div>
           {errorMessage && <p className="text-sm text-destructive">{errorMessage}</p>}
           <Button size="lg" type="submit" disabled={isLoading}>

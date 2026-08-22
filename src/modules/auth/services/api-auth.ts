@@ -6,6 +6,8 @@ interface AuthUserDto {
   name: string;
   email: string;
   role: "ADMIN" | "BARBER" | "CUSTOMER";
+  barberId?: string | null;
+  customerId?: string | null;
 }
 
 interface AuthResponseDto {
@@ -39,6 +41,8 @@ function mapAuthResponse(payload: AuthResponseDto): SessionUser {
     refreshToken: payload.refreshToken,
     role: payload.user.role,
     authenticated: true,
+    barberId: payload.user.barberId ?? null,
+    customerId: payload.user.customerId ?? null,
   };
 }
 
@@ -65,6 +69,8 @@ export async function fetchMeApi(): Promise<SessionUser> {
     const { data } = await api.get<AuthUserDto>("/auth/me");
     return {
       id: data.id,
+      barberId: data.barberId ?? null,
+      customerId: data.customerId ?? null,
       name: data.name,
       email: data.email,
       role: data.role,
