@@ -58,3 +58,18 @@ export interface SwapRequest {
   appointmentId: string;
   status: SwapRequestStatus;
 }
+
+/**
+ * Response from GET /appointments/available-slots.
+ * `slots` are ISO start times in UTC of every free 30-minute block that can
+ * host the requested service without overlapping any existing appointment or
+ * BlockedTime for the given barber on the given date.
+ */
+export interface AvailableSlotsResponse {
+  date: string;
+  barberId: string;
+  serviceId: string;
+  serviceDuration: number;
+  slotIntervalMinutes: number;
+  slots: string[];
+}
