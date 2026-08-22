@@ -43,8 +43,8 @@ import type { BlockedTime, Schedule } from "@/modules/shared/types";
 
 const scheduleSchema = z
   .object({
-    dayOfWeek: z.coerce
-      .number({ invalid_type_error: "Día inválido" })
+    dayOfWeek: z
+      .number()
       .int()
       .min(0)
       .max(6),
@@ -114,7 +114,10 @@ export default function BarberSchedulePage() {
     isLoading: loadingBlocks,
   } = useBlockedTimes({
     barberId,
-    from: `${todayIso}T00:00:00.000Z`,
+    // Start of "today" in the user's local timezone (Bogota). Sending
+    // `T00:00:00.000Z` would shift the lower bound to 19:00 of the previous
+    // day and could exclude in-progress blockades.
+    from: new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
   });
 
   // ---------------------------------------------------------------------------
@@ -465,7 +468,7 @@ export default function BarberSchedulePage() {
             <label className="text-sm font-medium">Día de la semana</label>
             <select
               className="flex h-11 w-full rounded-2xl border border-border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-ring"
-              {...scheduleForm.register("dayOfWeek")}
+              {...scheduleForm.register("dayOfWeek", { valueAsNumber: true })}
             >
               {DAYS_OF_WEEK.map((d) => (
                 <option key={d.value} value={d.value}>

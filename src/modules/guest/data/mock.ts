@@ -24,12 +24,19 @@ export const guestBarbers: Barber[] = [
   },
 ];
 
+// NOTE: `barbershopId` is required by the `Service` type since the backend
+// started exposing it. The mock data is only consumed by `/guest/services` for
+// visual preview when no real services exist; the value is a placeholder that
+// matches none of the demo records.
+const MOCK_BARBERSHOP_ID = "00000000-0000-0000-0000-000000000000";
+
 export const guestServices: Service[] = [
   {
     id: "service-1",
     name: "Corte premium",
     duration: 30,
     price: 65000,
+    barbershopId: MOCK_BARBERSHOP_ID,
     active: true,
   },
   {
@@ -37,6 +44,7 @@ export const guestServices: Service[] = [
     name: "Barba y perfilado",
     duration: 30,
     price: 40000,
+    barbershopId: MOCK_BARBERSHOP_ID,
     active: true,
   },
   {
@@ -44,6 +52,7 @@ export const guestServices: Service[] = [
     name: "Experiencia completa",
     duration: 30,
     price: 98000,
+    barbershopId: MOCK_BARBERSHOP_ID,
     active: true,
   },
 ];

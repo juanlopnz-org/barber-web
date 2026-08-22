@@ -38,16 +38,16 @@ const serviceSchema = z.object({
     .string()
     .min(2, "Mínimo 2 caracteres")
     .max(120, "Máximo 120 caracteres"),
-  duration: z.coerce
-    .number({ invalid_type_error: "Duración inválida" })
+  duration: z
+    .number()
     .int("Duración debe ser un entero")
     .min(5, "Mínimo 5 minutos")
     .max(480, "Máximo 8 horas"),
-  price: z.coerce
-    .number({ invalid_type_error: "Precio inválido" })
+  price: z
+    .number()
     .int("Precio en COP, sin centavos")
     .min(0, "El precio no puede ser negativo"),
-  active: z.boolean().optional().default(true),
+  active: z.boolean().optional(),
 });
 
 type ServiceFormValues = z.infer<typeof serviceSchema>;
