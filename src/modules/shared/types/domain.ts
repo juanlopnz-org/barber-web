@@ -100,3 +100,30 @@ export interface BlockedTime {
   barberId: string;
   active: boolean;
 }
+
+/**
+ * A weekly recurring booking rule ("Juan Carlos every Monday at 6:30pm").
+ *
+ * The series is materialized as a finite window of concrete Appointment
+ * rows; the rest of the system (slot computation, agenda views) doesn't need
+ * to know about RRULEs.
+ */
+export interface RecurringBooking {
+  id: string;
+  customerId: string;
+  customerName: string | null;
+  customerPhone: string;
+  barberId: string;
+  barberName: string;
+  serviceId: string;
+  serviceName: string;
+  dayOfWeek: number; // 0=Dom..6=Sáb
+  timeMinutes: number; // minutes since midnight in local time
+  startsOn: string; // YYYY-MM-DD
+  endsOn: string | null;
+  horizonWeeks: number;
+  lastMaterializedOn: string | null;
+  active: boolean;
+  createdAt: string;
+  upcomingCount: number;
+}
