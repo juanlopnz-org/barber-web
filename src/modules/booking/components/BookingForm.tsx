@@ -44,6 +44,17 @@ export function BookingForm({
   const user = useSessionStore((state) => state.user);
   const { getErrorMessage } = useAuthSession();
 
+  // Guest bookings are limited to a 14-day window from today. Authenticated
+  // customers with an existing booking history can book further ahead.
+  const isGuest = !user.authenticated;
+  const today = new Date().toISOString().slice(0, 10);
+  const maxDate = (() => {
+    if (!isGuest) return undefined;
+    const d = new Date();
+    d.setDate(d.getDate() + 14);
+    return d.toISOString().slice(0, 10);
+  })();
+
   const [name, setName] = useState(defaults.name ?? (user.authenticated ? user.name ?? "" : ""));
   const [phone, setPhone] = useState(defaults.phone ?? "");
   const [email, setEmail] = useState(defaults.email ?? (user.authenticated ? user.email ?? "" : ""));
@@ -188,9 +199,16 @@ export function BookingForm({
             <Input
               type="date"
               value={date}
-              min={new Date().toISOString().slice(0, 10)}
+              min={today}
+              max={maxDate}
               onChange={(event) => setDate(event.target.value)}
             />
+            {isGuest && (
+              <p className="text-xs text-secondary">
+                Como invitado puedes reservar dentro de los próximos 14 días.
+                Crea una cuenta para reservar con más anticipación.
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
