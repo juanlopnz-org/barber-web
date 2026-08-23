@@ -309,9 +309,7 @@ export default function AdminBarberSchedulePage() {
                           aria-label="Eliminar"
                           onClick={() => {
                             if (window.confirm("¿Eliminar este bloque?")) {
-                              deleteSchedule.mutate(s.id, {
-                                onError: (err) => window.alert(getErrorMessage(err)),
-                              });
+                              deleteSchedule.mutate(s.id);
                             }
                           }}
                         >
@@ -366,9 +364,7 @@ export default function AdminBarberSchedulePage() {
                 blockedTime={b}
                 onDelete={() => {
                   if (window.confirm("¿Eliminar este bloqueo?")) {
-                    deleteBlock.mutate(b.id, {
-                      onError: (err) => window.alert(getErrorMessage(err)),
-                    });
+                    deleteBlock.mutate(b.id);
                   }
                 }}
               />

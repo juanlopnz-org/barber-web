@@ -91,3 +91,69 @@
     box-shadow: 0 18px 40px rgba(56, 73, 89, 0.08);
   }
 }
+
+/* React Toastify: restrained desktop placement and a full-width safe area on phones. */
+.Toastify__toast-container {
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 0;
+}
+
+.Toastify__toast {
+  min-height: 0;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(106, 137, 167, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 12px 30px rgba(56, 73, 89, 0.16);
+  color: #384959;
+  font-family: var(--font-sans), "Segoe UI", sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.Toastify__toast--success { background: #f1faf6; }
+.Toastify__toast--error { background: #fff5f5; }
+.Toastify__progress-bar--success { background: #4e9c7f; }
+.Toastify__progress-bar--error { background: #bf5b5b; }
+
+.request-loading-indicator {
+  position: fixed;
+  z-index: 9998;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: inline-flex;
+  max-width: calc(100vw - 2rem);
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(136, 189, 242, 0.55);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 0.55rem 0.8rem;
+  color: #384959;
+  box-shadow: 0 8px 24px rgba(56, 73, 89, 0.14);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .Toastify__toast-container--top-right,
+  .Toastify__toast-container--top-left,
+  .Toastify__toast-container--top-center {
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+  }
+
+  .Toastify__toast {
+    margin-bottom: 0.5rem;
+    border-radius: 0.875rem;
+  }
+
+  .request-loading-indicator {
+    right: 50%;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    transform: translateX(50%);
+    white-space: nowrap;
+  }
+}

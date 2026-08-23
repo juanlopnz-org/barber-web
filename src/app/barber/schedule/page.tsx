@@ -374,10 +374,7 @@ export default function BarberSchedulePage() {
                                 )} – ${minutesToClock(s.endMinutes)}?`,
                               )
                             ) {
-                              deleteSchedule.mutate(s.id, {
-                                onError: (err) =>
-                                  window.alert(getErrorMessage(err)),
-                              });
+                              deleteSchedule.mutate(s.id);
                             }
                           }}
                         >
@@ -439,9 +436,7 @@ export default function BarberSchedulePage() {
                 blockedTime={b}
                 onDelete={() => {
                   if (window.confirm("¿Eliminar este bloqueo?")) {
-                    deleteBlock.mutate(b.id, {
-                      onError: (err) => window.alert(getErrorMessage(err)),
-                    });
+                    deleteBlock.mutate(b.id);
                   }
                 }}
               />
