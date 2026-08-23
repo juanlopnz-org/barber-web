@@ -6,6 +6,16 @@ import axios, {
 } from "axios";
 import { useSessionStore } from "@/store/session-store";
 import type { ApiErrorShape } from "@/modules/shared/types";
+import {
+  getFriendlyErrorMessage,
+  getLoadingMessage,
+  getSuccessMessage,
+  showErrorToast,
+  showSuccessToast,
+  startRequestActivity,
+  stopRequestActivity,
+  type HttpMethod,
+} from "@/modules/shared/lib/request-feedback";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
@@ -26,6 +36,28 @@ export const api = axios.create({
 // ---------------------------------------------------------------------------
 
 let isRefreshing = false;
+let requestSequence = 0;
+
+type FeedbackRequestConfig = InternalAxiosRequestConfig & {
+  _feedbackId?: string;
+  _feedbackCompleted?: boolean;
+  feedback?: boolean;
+};
+
+function methodFrom(config?: AxiosRequestConfig): HttpMethod {
+  const method = config?.method?.toLowerCase();
+  return method === "post" || method === "put" || method === "patch" || method === "delete"
+    ? method
+    : "get";
+}
+
+function shouldShowSuccess(config: FeedbackRequestConfig) {
+  return config.feedback !== false && methodFrom(config) !== "get";
+}
+
+function errorToastKey(config: AxiosRequestConfig, status?: number) {
+  return `${methodFrom(config)}:${config.url ?? "unknown"}:${status ?? "network"}`;
+}
 let pendingQueue: Array<{
   resolve: (value: AxiosResponse) => void;
   reject: (reason?: unknown) => void;
@@ -35,7 +67,28 @@ let pendingQueue: Array<{
 function flushPendingQueue(error: unknown, newToken?: string) {
   pendingQueue.forEach(({ resolve, reject, config }) => {
     if (error) {
-      reject(error);
+      const axiosError = error as AxiosError;
+      const status = axiosError.response?.status;
+      const responseData = axiosError.response?.data as
+        | { message?: string | string[]; code?: string }
+        | undefined;
+      const message = getFriendlyErrorMessage(status, responseData?.message);
+      const feedbackConfig = config as FeedbackRequestConfig;
+
+      if (!feedbackConfig._feedbackCompleted) {
+        feedbackConfig._feedbackCompleted = true;
+        stopRequestActivity(feedbackConfig._feedbackId);
+        if (feedbackConfig.feedback !== false && feedbackConfig._feedbackId) {
+          showErrorToast(message, errorToastKey(feedbackConfig, status));
+        }
+      }
+
+      reject({
+        message,
+        code: responseData?.code,
+        status,
+        details: axiosError.response?.data,
+      } satisfies ApiErrorShape);
     } else if (newToken && config.headers) {
       config.headers.Authorization = `Bearer ${newToken}`;
       void api.request(config).then(resolve).catch(reject);
@@ -89,6 +142,16 @@ api.interceptors.request.use((config) => {
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  const feedbackConfig = config as FeedbackRequestConfig;
+  if (feedbackConfig.feedback !== false && !feedbackConfig._feedbackId) {
+    requestSequence += 1;
+    feedbackConfig._feedbackId = `request-${requestSequence}`;
+    startRequestActivity(
+      feedbackConfig._feedbackId,
+      getLoadingMessage(methodFrom(feedbackConfig), feedbackConfig.url),
+    );
+  }
   return config;
 });
 
@@ -96,10 +159,23 @@ api.interceptors.request.use((config) => {
 //  Response interceptor — shape errors, attempt refresh on 401
 // ---------------------------------------------------------------------------
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const config = response.config as FeedbackRequestConfig;
+    if (!config._feedbackCompleted) {
+      config._feedbackCompleted = true;
+      stopRequestActivity(config._feedbackId);
+      if (shouldShowSuccess(config) && config._feedbackId) {
+        showSuccessToast(
+          getSuccessMessage(methodFrom(config), config.url),
+          config._feedbackId,
+        );
+      }
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const status = error?.response?.status;
-    const originalConfig = error.config as (InternalAxiosRequestConfig & {
+    const originalConfig = error.config as (FeedbackRequestConfig & {
       _retry?: boolean;
     }) | undefined;
 
@@ -149,13 +225,20 @@ api.interceptors.response.use(
     }
 
     const responseData = error?.response?.data as
-      | { message?: string; code?: string }
+      | { message?: string | string[]; code?: string }
       | undefined;
+    const friendlyMessage = getFriendlyErrorMessage(status, responseData?.message);
+
+    if (originalConfig && !originalConfig._feedbackCompleted) {
+      originalConfig._feedbackCompleted = true;
+      stopRequestActivity(originalConfig._feedbackId);
+      if (originalConfig.feedback !== false && originalConfig._feedbackId) {
+        showErrorToast(friendlyMessage, errorToastKey(originalConfig, status));
+      }
+    }
+
     const payload: ApiErrorShape = {
-      message:
-        responseData?.message ||
-        error?.message ||
-        "No fue posible completar la solicitud.",
+      message: friendlyMessage,
       code: responseData?.code,
       status,
       details: error?.response?.data,

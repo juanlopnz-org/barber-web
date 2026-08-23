@@ -135,8 +135,8 @@ export default function AdminServicesPage() {
         id: s.id,
         input: { active: !s.active },
       });
-    } catch (err) {
-      window.alert(getErrorMessage(err));
+    } catch {
+      // El interceptor global ya informa el error de forma consistente.
     }
   }
 
@@ -150,8 +150,8 @@ export default function AdminServicesPage() {
     }
     try {
       await deleteService.mutateAsync(s.id);
-    } catch (err) {
-      window.alert(getErrorMessage(err));
+    } catch {
+      // El interceptor global ya informa el error de forma consistente.
     }
   }
 
