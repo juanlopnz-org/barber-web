@@ -9,7 +9,7 @@ import {
   Loader2,
   Phone,
   Plus,
-  RefreshCw,
+  Pencil,
   Repeat,
   Trash2,
   X,
@@ -22,7 +22,7 @@ import {
   useCancelRecurringBooking,
   useCreateRecurringBooking,
   useRecurringBookings,
-  useRefreshRecurringBooking,
+  useUpdateRecurringBooking,
   type CreateRecurringBookingInput,
 } from "@/modules/shared/hooks/use-recurring-bookings";
 import type { RecurringBooking } from "@/modules/shared/types";
@@ -64,10 +64,11 @@ export default function AdminRecurringBookingsPage() {
   const { data: barbers = [] } = useBarbers();
   const { data: services = [] } = useServices();
   const createMut = useCreateRecurringBooking();
-  const refreshMut = useRefreshRecurringBooking();
+  const updateMut = useUpdateRecurringBooking();
   const cancelMut = useCancelRecurringBooking();
   const [showCreate, setShowCreate] = useState(false);
   const [pendingCancel, setPendingCancel] = useState<RecurringBooking | null>(null);
+  const [editingEndDate, setEditingEndDate] = useState<RecurringBooking | null>(null);
 
   return (
     <div className="space-y-6">
@@ -108,8 +109,7 @@ export default function AdminRecurringBookingsPage() {
             <RecurringCard
               key={r.id}
               series={r}
-              onRefresh={() => refreshMut.mutate(r.id)}
-              refreshing={refreshMut.isPending}
+              onEditEndDate={() => setEditingEndDate(r)}
               onCancel={() => setPendingCancel(r)}
             />
           ))}
@@ -140,19 +140,28 @@ export default function AdminRecurringBookingsPage() {
           submitting={cancelMut.isPending}
         />
       )}
+      {editingEndDate && (
+        <EditEndDateDialog
+          series={editingEndDate}
+          onClose={() => setEditingEndDate(null)}
+          onSubmit={(endsOn) => updateMut.mutate(
+            { id: editingEndDate.id, endsOn },
+            { onSuccess: () => setEditingEndDate(null) },
+          )}
+          submitting={updateMut.isPending}
+        />
+      )}
     </div>
   );
 }
 
 function RecurringCard({
   series,
-  onRefresh,
-  refreshing,
+  onEditEndDate,
   onCancel,
 }: {
   series: RecurringBooking;
-  onRefresh: () => void;
-  refreshing: boolean;
+  onEditEndDate: () => void;
   onCancel: () => void;
 }) {
   return (
@@ -185,14 +194,12 @@ function RecurringCard({
           </span>
         </Row>
         <Row icon={<Calendar className="h-3.5 w-3.5 text-secondary" />} label="Periodo">
-          {series.startsOn}
-          {series.endsOn ? ` → ${series.endsOn}` : " → sin fin"}
+          {series.startsOn} → {series.endsOn ?? "Sin fecha límite"}
         </Row>
         <Row icon={<Repeat className="h-3.5 w-3.5 text-secondary" />} label="Próximas citas">
           <span className="font-semibold text-foreground">{series.upcomingCount}</span>
           <span className="ml-1 text-xs text-secondary">
-            (materializadas hasta{" "}
-            {series.lastMaterializedOn ?? "—"} · horizonte {series.horizonWeeks} sem)
+            (hasta {series.lastMaterializedOn ?? "—"})
           </span>
         </Row>
 
@@ -200,11 +207,10 @@ function RecurringCard({
           <Button
             size="sm"
             variant="outline"
-            disabled={refreshing}
-            onClick={onRefresh}
-            title="Materializar más semanas"
+            onClick={onEditEndDate}
+            title="Modificar fecha límite"
           >
-            <RefreshCw className="mr-1 h-3.5 w-3.5" /> Refrescar
+            <Pencil className="mr-1 h-3.5 w-3.5" /> Fecha límite
           </Button>
           <Button
             size="sm"
@@ -252,8 +258,7 @@ function CreateDialog({
   const [dayOfWeek, setDayOfWeek] = useState(1); // Monday
   const [time, setTime] = useState("14:30");
   const [startsOn, setStartsOn] = useState(() => shiftDays(todayISO(), 1));
-  const [endsOn, setEndsOn] = useState("");
-  const [horizonWeeks, setHorizonWeeks] = useState(4);
+  const [endsOn, setEndsOn] = useState(() => shiftDays(todayISO(), 84));
   const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -268,6 +273,10 @@ function CreateDialog({
       setError("Teléfono debe tener al menos 10 dígitos");
       return;
     }
+    if (!endsOn || endsOn < startsOn) {
+      setError("La fecha límite debe ser igual o posterior a la primera cita.");
+      return;
+    }
     onSubmit({
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
@@ -276,8 +285,7 @@ function CreateDialog({
       dayOfWeek,
       timeMinutes: hh * 60 + mm,
       startsOn,
-      ...(endsOn ? { endsOn } : {}),
-      horizonWeeks,
+      endsOn,
     });
   }
 
@@ -328,7 +336,7 @@ function CreateDialog({
           </Field>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2">
           <Field label="Día de la semana">
             <select
               value={dayOfWeek}
@@ -343,15 +351,6 @@ function CreateDialog({
           <Field label="Hora (local)">
             <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
           </Field>
-          <Field label="Horizonte (semanas)">
-            <Input
-              type="number"
-              min={1}
-              max={52}
-              value={horizonWeeks}
-              onChange={(e) => setHorizonWeeks(Number(e.target.value) || 4)}
-            />
-          </Field>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -363,11 +362,13 @@ function CreateDialog({
               required
             />
           </Field>
-          <Field label="Última cita (opcional)">
+          <Field label="Fecha límite de la serie">
             <Input
               type="date"
               value={endsOn}
               onChange={(e) => setEndsOn(e.target.value)}
+              min={startsOn}
+              required
             />
           </Field>
         </div>
@@ -428,6 +429,52 @@ function CancelDialog({
           </Button>
         </div>
       </div>
+    </ModalShell>
+  );
+}
+
+function EditEndDateDialog({
+  series,
+  onClose,
+  onSubmit,
+  submitting,
+}: {
+  series: RecurringBooking;
+  onClose: () => void;
+  onSubmit: (endsOn: string) => void;
+  submitting: boolean;
+}) {
+  const [endsOn, setEndsOn] = useState(series.endsOn ?? series.startsOn);
+
+  return (
+    <ModalShell title="Modificar fecha límite" onClose={onClose}>
+      <form
+        className="space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit(endsOn);
+        }}
+      >
+        <p className="text-sm text-secondary">
+          La serie generará citas hasta esta fecha. Si la reduces, se cancelarán
+          las próximas citas pendientes que queden fuera del nuevo límite.
+        </p>
+        <Field label="Fecha límite de la serie">
+          <Input
+            type="date"
+            value={endsOn}
+            min={series.startsOn}
+            onChange={(event) => setEndsOn(event.target.value)}
+            required
+          />
+        </Field>
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="submit" disabled={submitting}>
+            {submitting ? "Guardando…" : "Guardar fecha"}
+          </Button>
+        </div>
+      </form>
     </ModalShell>
   );
 }

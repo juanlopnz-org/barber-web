@@ -12,8 +12,12 @@ export interface CreateRecurringBookingInput {
   dayOfWeek: number;
   timeMinutes: number;
   startsOn: string; // YYYY-MM-DD
-  endsOn?: string;
-  horizonWeeks?: number;
+  endsOn: string;
+}
+
+export interface UpdateRecurringBookingInput {
+  id: string;
+  endsOn: string;
 }
 
 /** List every active recurring booking (admin view). */
@@ -67,6 +71,23 @@ export function useRefreshRecurringBooking() {
     mutationFn: async (id: string) => {
       const { data } = await api.patch<RecurringBooking>(
         `/admin/recurring-bookings/${id}/refresh`,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["recurring-bookings"] });
+      void qc.invalidateQueries({ queryKey: ["appointments"] });
+    },
+  });
+}
+
+export function useUpdateRecurringBooking() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, endsOn }: UpdateRecurringBookingInput) => {
+      const { data } = await api.patch<RecurringBooking>(
+        `/admin/recurring-bookings/${id}`,
+        { endsOn },
       );
       return data;
     },
