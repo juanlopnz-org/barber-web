@@ -112,7 +112,9 @@ export function BookingForm({
         barberId,
         serviceId,
         startTime: selectedSlot,
-        customerId: user.authenticated ? user.id : undefined,
+        // Appointment.customerId references Customer.id, which is distinct
+        // from the authenticated Profile.id stored in user.id.
+        customerId: user.authenticated ? user.customerId ?? undefined : undefined,
         guestName: user.authenticated ? undefined : name,
         guestPhone: user.authenticated ? undefined : phone,
       });
