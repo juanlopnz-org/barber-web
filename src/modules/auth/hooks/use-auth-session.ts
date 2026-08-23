@@ -34,7 +34,9 @@ export function useAuthSession() {
   }
 
   async function register(values: RegisterFormValues) {
-    const session = await registerApi(values);
+    // Drop the confirmPassword field — backend doesn't expect it.
+    const { confirmPassword: _confirm, ...payload } = values;
+    const session = await registerApi(payload);
     setUser(session);
     router.push(roleHome[session.role]);
     router.refresh();

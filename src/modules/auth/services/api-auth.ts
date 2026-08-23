@@ -5,6 +5,7 @@ interface AuthUserDto {
   id: string;
   name: string;
   email: string;
+  phone: string;
   role: "ADMIN" | "BARBER" | "CUSTOMER";
   barberId?: string | null;
   customerId?: string | null;
@@ -17,19 +18,31 @@ interface AuthResponseDto {
 }
 
 interface LoginPayload {
-  email: string;
+  phone: string;
   password: string;
 }
 
 interface RegisterPayload {
   name: string;
-  email: string;
+  phone: string;
   password: string;
-  phone?: string;
+  email?: string;
 }
 
 interface RefreshPayload {
   refreshToken: string;
+}
+
+/**
+ * Response shape from POST /api/auth/check-phone. The UI uses this to show
+ * "we already have N bookings on file for this number" before the user
+ * completes the registration form, so they know their future account will
+ * inherit those appointments.
+ */
+export interface CheckPhoneResponse {
+  exists: boolean;
+  customerName: string | null;
+  linkedAppointments: number | null;
 }
 
 function mapAuthResponse(payload: AuthResponseDto): SessionUser {
@@ -37,6 +50,7 @@ function mapAuthResponse(payload: AuthResponseDto): SessionUser {
     id: payload.user.id,
     name: payload.user.name,
     email: payload.user.email,
+    phone: payload.user.phone,
     token: payload.token,
     refreshToken: payload.refreshToken,
     role: payload.user.role,
@@ -64,6 +78,17 @@ export async function registerApi(values: RegisterPayload): Promise<SessionUser>
   }
 }
 
+export async function checkPhoneApi(phone: string): Promise<CheckPhoneResponse> {
+  try {
+    const { data } = await api.post<CheckPhoneResponse>("/auth/check-phone", {
+      phone,
+    });
+    return data;
+  } catch (err) {
+    throw err as ApiErrorShape;
+  }
+}
+
 export async function fetchMeApi(): Promise<SessionUser> {
   try {
     const { data } = await api.get<AuthUserDto>("/auth/me");
@@ -73,6 +98,7 @@ export async function fetchMeApi(): Promise<SessionUser> {
       customerId: data.customerId ?? null,
       name: data.name,
       email: data.email,
+      phone: data.phone,
       role: data.role,
       authenticated: true,
     };
@@ -81,10 +107,6 @@ export async function fetchMeApi(): Promise<SessionUser> {
   }
 }
 
-/**
- * Exchange a refresh_token for a new access_token + refresh_token pair.
- * Returns null if the refresh_token is invalid (caller should clear session).
- */
 export async function refreshApi(
   refreshToken: string,
 ): Promise<SessionUser | null> {
@@ -98,15 +120,17 @@ export async function refreshApi(
   }
 }
 
-/**
- * Invalidate the current session server-side. Best-effort: if the request
- * fails (e.g. token already expired), we still let the caller clear local
- * state.
- */
 export async function logoutApi(): Promise<void> {
   try {
     await api.post<void>("/auth/logout");
   } catch {
     // intentionally swallow — caller clears local state regardless
   }
+}
+
+export async function adminResetCustomerPasswordApi(
+  phone: string,
+  newPassword: string,
+): Promise<void> {
+  await api.post("/auth/admin/customers/reset-password", { phone, newPassword });
 }

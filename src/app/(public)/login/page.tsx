@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ArrowRight, Calendar, ShieldCheck } from "lucide-react";
+import { ArrowRight, Calendar, Phone, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -21,7 +21,7 @@ export default function LoginPage() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      phone: "",
       password: "",
     },
   });
@@ -40,12 +40,20 @@ export default function LoginPage() {
       <div className="hidden rounded-[2rem] bg-[#384959] p-10 text-white shadow-2xl lg:block">
         <p className="text-xs uppercase tracking-[0.24em] text-white/60">Acceso seguro</p>
         <h1 className="mt-6 text-4xl font-semibold leading-tight">
-          Entra a una operación más clara, tranquila y profesional.
+          Entra con tu número de teléfono y contraseña.
         </h1>
         <p className="mt-5 max-w-md text-base leading-7 text-white/72">
-          Esta primera fase deja lista la base visual y la arquitectura para auth, reservas y navegación por rol.
+          El identificador principal es tu teléfono. Si el barbero ya te agendó
+          como invitado, al crear tu cuenta te mostramos cuántas citas están
+          vinculadas para que las reconozcas.
         </p>
         <div className="mt-10 space-y-4">
+          <div className="rounded-2xl bg-white/10 p-4">
+            <div className="flex items-center gap-3">
+              <Phone className="h-5 w-5 text-primary" />
+              <p className="font-medium">Login por teléfono (E.164)</p>
+            </div>
+          </div>
           <div className="rounded-2xl bg-white/10 p-4">
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-5 w-5 text-primary" />
@@ -55,7 +63,7 @@ export default function LoginPage() {
           <div className="rounded-2xl bg-white/10 p-4">
             <div className="flex items-center gap-3">
               <Calendar className="h-5 w-5 text-primary" />
-              <p className="font-medium">Base lista para disponibilidad y reservas reales</p>
+              <p className="font-medium">Tus citas previas se conservan al crear la cuenta</p>
             </div>
           </div>
         </div>
@@ -66,42 +74,71 @@ export default function LoginPage() {
           <p className="text-xs uppercase tracking-[0.24em] text-secondary">Bienvenido</p>
           <CardTitle className="text-3xl">Iniciar sesión</CardTitle>
           <p className="text-sm leading-6 text-secondary">
-            Continúa con tu cuenta para administrar citas, agenda y operación.
+            Usa tu número de teléfono y la contraseña que asignaste al crear
+            tu cuenta.
           </p>
         </CardHeader>
         <CardContent>
           <form className="space-y-5" onSubmit={onSubmit}>
-          <div className="space-y-2">
-            <label className="text-sm font-medium leading-none text-foreground">Email</label>
-            <Input type="email" placeholder="correo@barbersystem.com" {...register("email")} />
-            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium leading-none text-foreground">Contraseña</label>
-              <button className="text-sm font-medium text-secondary hover:text-foreground">
-                Recuperar acceso
-              </button>
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none text-foreground">
+                Teléfono
+              </label>
+              <Input
+                type="tel"
+                inputMode="tel"
+                placeholder="3001234567 o +573001234567"
+                {...register("phone")}
+              />
+              {errors.phone && (
+                <p className="text-sm text-destructive">{errors.phone.message}</p>
+              )}
             </div>
-            <Input type="password" placeholder="Ingresa tu contraseña" {...register("password")} />
-            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-          </div>
-          {errorMessage && <p className="text-sm text-destructive">{errorMessage}</p>}
-          <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
-            <span className="inline-flex items-center">
-              Entrar al sistema
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </span>
-          </Button>
-          <Button variant="outline" className="w-full" size="lg" asChild>
-            <Link href="/guest/booking">Continuar como invitado</Link>
-          </Button>
-          <p className="text-center text-sm text-secondary">
-            ¿No tienes cuenta?{" "}
-            <Link href="/register" className="font-semibold text-foreground hover:text-secondary">
-              Crea tu perfil
-            </Link>
-          </p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium leading-none text-foreground">
+                  Contraseña
+                </label>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-secondary hover:text-foreground"
+                  title="Solicita al admin que restablezca tu contraseña por WhatsApp"
+                  disabled
+                >
+                  Recuperar acceso
+                </button>
+              </div>
+              <Input
+                type="password"
+                placeholder="Ingresa tu contraseña"
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password.message}</p>
+              )}
+              <p className="text-xs text-secondary">
+                ¿Olvidaste tu contraseña? Pídele al admin que la restablezca
+                (lo atenderá por WhatsApp).
+              </p>
+            </div>
+            {errorMessage && (
+              <p className="text-sm text-destructive">{errorMessage}</p>
+            )}
+            <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
+              <span className="inline-flex items-center">
+                Entrar al sistema
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </span>
+            </Button>
+            <Button variant="outline" className="w-full" size="lg" asChild>
+              <Link href="/guest/booking">Continuar como invitado</Link>
+            </Button>
+            <p className="text-center text-sm text-secondary">
+              ¿No tienes cuenta?{" "}
+              <Link href="/register" className="font-semibold text-foreground hover:text-secondary">
+                Crea tu perfil
+              </Link>
+            </p>
           </form>
         </CardContent>
       </Card>

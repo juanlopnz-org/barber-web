@@ -4,6 +4,8 @@ export type SessionUser = {
   id?: string;
   name?: string;
   email?: string;
+  /** E.164 phone; the primary login identifier after the phone-first migration. */
+  phone?: string;
   token?: string;
   refreshToken?: string;
   role: Role;
