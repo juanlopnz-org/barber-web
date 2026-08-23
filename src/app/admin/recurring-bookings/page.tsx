@@ -78,7 +78,7 @@ export default function AdminRecurringBookingsPage() {
           </h1>
           <p className="mt-2 text-secondary">
             Agenda clientes en horarios semanales que se repiten automáticamente.
-            Por ejemplo, "todos los sábados a las 6:30pm con Carlos". El sistema
+            Por ejemplo, todos los sábados a las 6:30pm con Carlos. El sistema
             materializa las próximas semanas y deja que el cliente gestione las
             suyas desde su panel.
           </p>
@@ -483,6 +483,3 @@ function ModalShell({
     </div>
   );
 }
-
-// Re-export the day-short array so tests / future components can use it.
-export { DAY_SHORT };
