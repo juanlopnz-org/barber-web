@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Calendar, CalendarDays, Clock3, Home, Scissors, ShieldCheck, Users } from "lucide-react";
+import { Calendar, CalendarDays, Clock3, Home, Repeat, Scissors, ShieldCheck, Users } from "lucide-react";
 import type { Role } from "@/modules/shared/types";
 
 export type NavigationItem = {
@@ -74,6 +74,12 @@ export const navigationByRole: Record<Exclude<Role, "GUEST">, NavigationItem[]> 
       label: "Servicios",
       description: "Mantén el catálogo",
       icon: Scissors,
+    },
+    {
+      href: "/admin/recurring-bookings",
+      label: "Recurrentes",
+      description: "Reservas semanales automáticas",
+      icon: Repeat,
     },
   ],
 };
