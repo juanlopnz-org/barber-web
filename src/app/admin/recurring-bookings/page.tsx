@@ -403,7 +403,7 @@ function CancelDialog({
     <ModalShell title="Cancelar serie" onClose={onClose}>
       <div className="space-y-4">
         <div className="flex items-start gap-3 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
-          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
           <div>
             <p className="font-semibold text-foreground">
               ¿Cancelar la serie de {series.customerName ?? series.customerPhone}?
@@ -509,8 +509,8 @@ function ModalShell({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <Card className="w-full max-w-2xl border-white/70 bg-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:items-center md:pb-4">
+      <Card className="flex w-full max-w-2xl max-h-[calc(100dvh-2rem)] flex-col border-white/70 bg-white shadow-2xl md:max-h-[calc(100dvh-4rem)]">
         <CardHeader className="flex flex-row items-center justify-between border-b border-border pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <CheckCircle2 className="h-5 w-5 text-primary" />
@@ -525,7 +525,7 @@ function ModalShell({
             <X className="h-4 w-4" />
           </button>
         </CardHeader>
-        <CardContent className="p-6">{children}</CardContent>
+        <CardContent className="flex-1 overflow-y-auto p-6">{children}</CardContent>
       </Card>
     </div>
   );

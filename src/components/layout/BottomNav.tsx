@@ -19,7 +19,7 @@ export function BottomNav() {
   const links = navigationByRole[role]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/70 bg-white/92 px-2 pb-safe pt-1 backdrop-blur-xl md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/70 bg-white/92 px-2 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur-xl md:hidden">
       <div className="mx-auto flex h-16 w-full max-w-2xl items-center justify-around">
         {links.map((link) => {
           const Icon = link.icon
