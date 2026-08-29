@@ -509,8 +509,8 @@ function ModalShell({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:items-center md:pb-4">
-      <Card className="flex w-full max-w-2xl max-h-[calc(100dvh-2rem)] flex-col border-white/70 bg-white shadow-2xl md:max-h-[calc(100dvh-4rem)]">
+    <div className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/40 p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:items-center md:pb-4">
+      <Card className="flex w-full max-w-2xl max-h-[calc(100dvh-7rem)] flex-col border-white/70 bg-white shadow-2xl md:max-h-[calc(100dvh-4rem)]">
         <CardHeader className="flex flex-row items-center justify-between border-b border-border pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <CheckCircle2 className="h-5 w-5 text-primary" />

@@ -3,6 +3,7 @@
 import { Bell, Menu } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useUIStore } from "@/store/ui-store"
+import { UserMenu } from "@/components/layout/UserMenu"
 import { useAuthSession } from "@/modules/auth/hooks/use-auth-session"
 import { navigationByRole } from "@/modules/shared/config/navigation"
 
@@ -11,11 +12,13 @@ export function Header() {
   const pathname = usePathname()
   const { user } = useAuthSession()
 
-  const role = user.authenticated && user.role !== "GUEST" ? user.role : null
-  const links = role ? navigationByRole[role] : []
+  const authenticatedRole =
+    user.authenticated && user.role !== "GUEST" ? user.role : null
+  const itemsForRole = authenticatedRole ? navigationByRole[authenticatedRole] : []
   const current =
-    links.find((link) => pathname === link.href || pathname.startsWith(`${link.href}/`)) ??
-    links[0]
+    itemsForRole.find(
+      (link) => pathname === link.href || pathname.startsWith(`${link.href}/`),
+    ) ?? itemsForRole[0]
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/50 bg-white/82 backdrop-blur-xl">
@@ -37,9 +40,7 @@ export function Header() {
           >
             <Bell className="h-4 w-4" />
           </button>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/35 text-sm font-semibold text-foreground">
-            {(user.name || "Guest").slice(0, 2).toUpperCase()}
-          </div>
+          <UserMenu />
         </div>
       </div>
     </header>
