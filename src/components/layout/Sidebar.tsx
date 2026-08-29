@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LogOut, X } from "lucide-react"
+import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUIStore } from "@/store/ui-store"
 import { useAuthSession } from "@/modules/auth/hooks/use-auth-session"
@@ -19,7 +19,7 @@ const SEGMENT_TO_ROLE: Array<{ prefix: string; role: AuthenticatedRole }> = [
 export function Sidebar() {
   const pathname = usePathname()
   const { isSidebarOpen, setSidebarOpen } = useUIStore()
-  const { user, logout } = useAuthSession()
+  const { user } = useAuthSession()
   const segmentRole = SEGMENT_TO_ROLE.find((entry) => pathname.startsWith(entry.prefix))?.role
   const role: AuthenticatedRole =
     user.authenticated && user.role !== "GUEST"
@@ -90,16 +90,6 @@ export function Sidebar() {
               )
             })}
           </nav>
-
-          <div className="border-t border-white/10 pt-5">
-            <button
-              className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-white/72 hover:bg-white/8 hover:text-white transition-colors"
-              onClick={logout}
-            >
-              <LogOut className="h-5 w-5" />
-              <span className="text-sm font-medium">Cerrar Sesión</span>
-            </button>
-          </div>
         </div>
       </aside>
     </>
