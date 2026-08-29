@@ -225,7 +225,7 @@ function FormStep({
 
       {phoneCheck?.exists && (
         <div className="mt-4 flex items-start gap-3 rounded-2xl border border-success/40 bg-success/10 p-4 text-sm">
-          <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-success" />
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
           <div>
             <p className="font-semibold text-foreground">
               ¡Hola {phoneCheck.customerName ?? "de nuevo"}!
