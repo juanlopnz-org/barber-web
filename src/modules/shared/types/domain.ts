@@ -54,6 +54,28 @@ export interface Appointment {
   guestPhone?: string | null;
 }
 
+/**
+ * Counters for the operational statuses, computed by the API over the whole
+ * filtered set (not only the current page) so the KPI cards stay stable
+ * while paginating.
+ */
+export interface AppointmentSummary {
+  booked: number;
+  completed: number;
+  cancelled: number;
+  noShow: number;
+}
+
+/** Envelope returned by `GET /api/appointments`. */
+export interface PaginatedAppointments {
+  items: Appointment[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  summary: AppointmentSummary;
+}
+
 export interface SwapRequest {
   id: string;
   appointmentId: string;

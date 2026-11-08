@@ -15,6 +15,10 @@ import {
 } from "@/modules/admin/data/metrics";
 import { guestBarbers, guestServices } from "@/modules/guest/data/mock";
 import { customerDirectory } from "@/modules/barber/data/appointments";
+import {
+  APPOINTMENT_STATUS_BADGE,
+  appointmentStatusLabel,
+} from "@/modules/shared/lib/appointment-status";
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("es-CO", {
@@ -124,13 +128,13 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    apt.status === "CANCELLED"
-                      ? "bg-destructive/10 text-destructive"
-                      : "bg-primary/15 text-foreground"
-                  }`}
+                  className={
+                    "rounded-full px-3 py-1 text-xs font-semibold " +
+                    (APPOINTMENT_STATUS_BADGE[apt.status] ??
+                      "bg-primary/15 text-foreground")
+                  }
                 >
-                  {apt.status === "CANCELLED" ? "Cancelada" : "Confirmada"}
+                  {appointmentStatusLabel(apt.status)}
                 </span>
               </div>
             ))}

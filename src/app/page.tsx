@@ -112,7 +112,7 @@ export default function LandingPage() {
                 <div className="rounded-2xl border border-border bg-white/80 p-5">
                   <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-secondary">
                     <Users className="h-4 w-4" />
-                    Bbs destacados
+                    Barberos destacados
                   </div>
                   <div className="space-y-3">
                     {barbers.slice(0, 2).map((barber) => (
@@ -133,7 +133,7 @@ export default function LandingPage() {
                 <div className="rounded-2xl border border-border bg-white/80 p-5">
                   <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-secondary">
                     <Scissors className="h-4 w-4" />
-                    Ssos frecuentes
+                    Servicios frecuentes
                   </div>
                   <div className="space-y-3">
                     {services.slice(0, 2).map((service) => (

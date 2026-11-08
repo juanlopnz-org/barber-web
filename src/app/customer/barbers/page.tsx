@@ -33,21 +33,21 @@ export default function BarbersPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-bold text-lg">{barber.name}</h3>
-                    <p className="text-sm text-secondary">{barber.specialty}</p>
+                    {/* <p className="text-sm text-secondary">{barber.specialty}</p> */}
                   </div>
                   <div className="flex items-center text-primary">
                     <Star className="h-4 w-4 fill-primary mr-1" />
                     <span className="font-medium text-sm">{barber.rating}</span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                {/* <div className="flex flex-wrap gap-2">
                   {MOCK_TIME_SLOTS.map((slot) => (
                     <span key={slot} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {slot}
                     </span>
                   ))}
-                </div>
+                </div> */}
                 <Button className="w-full" asChild>
                   <Link href={`/customer/book?barber=${barber.id}`}>Reservar</Link>
                 </Button>
