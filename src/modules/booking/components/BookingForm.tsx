@@ -84,6 +84,14 @@ export function BookingForm({
     }
   }, [barbers, barberId, defaults.preferredBarberId]);
 
+  // The customer page can receive the persisted session after hydration.
+  // Synchronize account data that was unavailable on the first render.
+  useEffect(() => {
+    if (defaults.name !== undefined) setName(defaults.name);
+    if (defaults.phone !== undefined) setPhone(defaults.phone);
+    if (defaults.email !== undefined) setEmail(defaults.email);
+  }, [defaults.email, defaults.name, defaults.phone]);
+
   const {
     data: slotsData,
     isLoading: loadingSlots,
@@ -152,6 +160,7 @@ export function BookingForm({
                 placeholder="+57 300 000 0000"
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
+                disabled={user.authenticated}
               />
             </div>
           </div>
