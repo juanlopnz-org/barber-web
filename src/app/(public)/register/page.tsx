@@ -298,7 +298,12 @@ function FormStep({
             <Button variant="outline" type="button" onClick={onBack}>
               Cambiar teléfono
             </Button>
-            <Button className="flex-1" size="lg" type="submit" disabled={isSubmitting}>
+            <Button
+              className="h-auto min-h-14 flex-1 px-10 py-4"
+              size="lg"
+              type="submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Creando cuenta…" : "Crear mi cuenta"}
             </Button>
           </div>
