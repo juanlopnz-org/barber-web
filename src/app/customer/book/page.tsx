@@ -55,6 +55,7 @@ export default function CustomerBookPage() {
         defaults={{
           name: user.name ?? undefined,
           email: user.email ?? undefined,
+          phone: user.phone ?? undefined,
           preferredBarberId,
         }}
         submitLabel="Reservar"
