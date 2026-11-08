@@ -67,6 +67,7 @@ export function getSuccessMessage(method: HttpMethod, url?: string) {
   if (path.includes("schedules") && method === "post") return "El horario fue creado correctamente.";
   if (path.includes("schedules") && method === "patch") return "El horario fue actualizado.";
   if (path.includes("schedules") && method === "delete") return "El horario fue eliminado.";
+  if (path.includes("barbers") && method === "delete") return "El barbero fue eliminado.";
   if (path.includes("services") && method === "post") return "El servicio fue creado correctamente.";
   if (path.includes("services") && method === "patch") return "El servicio fue actualizado.";
   if (path.includes("services") && method === "delete") return "El servicio fue eliminado.";
