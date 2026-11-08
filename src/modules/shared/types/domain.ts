@@ -50,6 +50,7 @@ export interface Appointment {
   endTime: string;
   status: AppointmentStatus;
   customerId?: string | null;
+  customerName?: string | null;
   guestName?: string | null;
   guestPhone?: string | null;
 }
