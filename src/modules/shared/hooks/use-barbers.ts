@@ -14,6 +14,37 @@ export function useBarbers() {
   });
 }
 
+export interface CreateBarberInput {
+  name: string;
+  phone: string;
+  password: string;
+  barbershopId: string;
+  specialty?: string;
+  rating?: number;
+  allowBarberChangeOnSwap?: boolean;
+}
+
+export interface CreateBarberAccountResponse {
+  barber: Barber;
+  initialPassword: string;
+}
+
+export function useCreateBarber() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateBarberInput) => {
+      const { data } = await api.post<CreateBarberAccountResponse>(
+        "/barbers",
+        input,
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["barbers"] });
+    },
+  });
+}
+
 export interface UpdateBarberInput {
   name?: string;
   specialty?: string | null;

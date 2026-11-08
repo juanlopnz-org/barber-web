@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
   useBarbers,
+  useCreateBarber,
   useDeleteBarber,
   useUpdateBarber,
 } from "@/modules/shared/hooks/use-barbers";
+import { useDefaultBarbershopId } from "@/modules/shared/hooks/use-barbershops";
 import { useAuthSession } from "@/modules/auth/hooks/use-auth-session";
 import type { Barber } from "@/modules/shared/types";
 
@@ -28,6 +30,11 @@ const barberSchema = z.object({
 });
 
 type BarberFormValues = z.infer<typeof barberSchema>;
+const createBarberSchema = barberSchema.extend({
+  phone: z.string().min(7, "Ingresa un teléfono válido"),
+  password: z.string().min(8, "Mínimo 8 caracteres").max(72, "Máximo 72 caracteres"),
+});
+type CreateBarberFormValues = z.infer<typeof createBarberSchema>;
 
 function formatJoinedDate(iso?: string) {
   if (!iso) return "—";
@@ -42,12 +49,27 @@ export default function AdminBarbersPage() {
   const { data: barbers = [], isLoading } = useBarbers();
   const { getErrorMessage } = useAuthSession();
   const updateBarber = useUpdateBarber();
+  const createBarber = useCreateBarber();
   const deleteBarber = useDeleteBarber();
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const createDialogRef = useRef<HTMLDialogElement | null>(null);
   const [editing, setEditing] = useState<Barber | null>(null);
+  const [createdCredentials, setCreatedCredentials] = useState<string | null>(null);
+  const { barbershopId, loading: loadingBarbershop } = useDefaultBarbershopId();
   const form = useForm<BarberFormValues>({
     resolver: zodResolver(barberSchema),
     defaultValues: { name: "", specialty: "", rating: 0, active: true },
+  });
+  const createForm = useForm<CreateBarberFormValues>({
+    resolver: zodResolver(createBarberSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      password: "",
+      specialty: "",
+      rating: 0,
+      active: true,
+    },
   });
   const activeCount = barbers.filter((b) => b.active).length;
   const inactiveCount = barbers.length - activeCount;
@@ -61,6 +83,18 @@ export default function AdminBarbersPage() {
       active: barber.active,
     });
     dialogRef.current?.showModal();
+  }
+
+  function openCreate() {
+    createForm.reset({
+      name: "",
+      phone: "",
+      password: "",
+      specialty: "",
+      rating: 0,
+      active: true,
+    });
+    createDialogRef.current?.showModal();
   }
 
   async function onSubmit(values: BarberFormValues) {
@@ -78,6 +112,31 @@ export default function AdminBarbersPage() {
       dialogRef.current?.close();
     } catch (err) {
       form.setError("root", { message: getErrorMessage(err) });
+    }
+  }
+
+  async function onCreate(values: CreateBarberFormValues) {
+    if (!barbershopId) {
+      createForm.setError("root", {
+        message: "No hay un barbershop configurado para crear barberos.",
+      });
+      return;
+    }
+    try {
+      const result = await createBarber.mutateAsync({
+        name: values.name,
+        phone: values.phone,
+        password: values.password,
+        specialty: values.specialty || undefined,
+        rating: values.rating,
+        barbershopId,
+      });
+      createDialogRef.current?.close();
+      setCreatedCredentials(
+        `Teléfono: ${values.phone}\nContraseña inicial: ${result.initialPassword}`,
+      );
+    } catch (err) {
+      createForm.setError("root", { message: getErrorMessage(err) });
     }
   }
 
@@ -105,7 +164,7 @@ export default function AdminBarbersPage() {
             Barberos
           </h1>
         </div>
-        <Button size="lg" disabled>
+        <Button size="lg" onClick={openCreate} disabled={loadingBarbershop}>
           <UserPlus className="mr-2 h-4 w-4" />
           Nuevo barbero
         </Button>
@@ -306,6 +365,81 @@ export default function AdminBarbersPage() {
             </Button>
           </div>
         </form>
+      </dialog>
+
+      <dialog
+        ref={createDialogRef}
+        className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+      >
+        <form
+          method="dialog"
+          className="w-[28rem] max-w-[92vw] space-y-4 p-6"
+          onSubmit={createForm.handleSubmit(onCreate)}
+        >
+          <h2 className="text-lg font-semibold">Nuevo barbero</h2>
+          <p className="text-sm text-secondary">
+            La contraseña inicial se mostrará una sola vez después de crear la cuenta.
+          </p>
+          {(["name", "phone", "password", "specialty"] as const).map((field) => (
+            <div className="space-y-2" key={field}>
+              <label className="text-sm font-medium">
+                {field === "name"
+                  ? "Nombre"
+                  : field === "phone"
+                    ? "Teléfono"
+                    : field === "password"
+                      ? "Contraseña inicial"
+                      : "Especialidad"}
+              </label>
+              <Input
+                type={field === "password" ? "password" : "text"}
+                placeholder={
+                  field === "phone" ? "+573001234567" : undefined
+                }
+                {...createForm.register(field)}
+              />
+              {createForm.formState.errors[field] ? (
+                <p className="text-xs text-destructive">
+                  {createForm.formState.errors[field]?.message}
+                </p>
+              ) : null}
+            </div>
+          ))}
+          {createForm.formState.errors.root ? (
+            <p className="text-sm text-destructive">
+              {createForm.formState.errors.root.message}
+            </p>
+          ) : null}
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-white px-5 text-sm font-semibold hover:bg-accent"
+              onClick={() => createDialogRef.current?.close()}
+            >
+              Cancelar
+            </button>
+            <Button type="submit" disabled={createBarber.isPending}>
+              {createBarber.isPending ? "Creando…" : "Crear cuenta"}
+            </Button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog
+        open={createdCredentials !== null}
+        className="rounded-2xl border border-border bg-white p-6 shadow-2xl backdrop:bg-black/40"
+        onClose={() => setCreatedCredentials(null)}
+      >
+        <h2 className="text-lg font-semibold">Cuenta creada</h2>
+        <p className="mt-2 whitespace-pre-line text-sm text-secondary">
+          {createdCredentials}
+        </p>
+        <p className="mt-3 text-xs text-warning">
+          Guarda estas credenciales y compártelas de forma segura. No volverán a mostrarse.
+        </p>
+        <Button className="mt-5" onClick={() => setCreatedCredentials(null)}>
+          Cerrar
+        </Button>
       </dialog>
     </div>
   );
