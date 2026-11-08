@@ -95,7 +95,7 @@ export default function AdminAgendaPage() {
         <SummaryCard label="Confirmadas" value={summary.booked} icon={Calendar} accent="text-primary" />
         <SummaryCard label="Completadas" value={summary.completed} icon={CheckCircle2} accent="text-success" />
         <SummaryCard label="Canceladas" value={summary.cancelled} icon={XCircle} accent="text-destructive" />
-        <SummaryCard label="No show" value={summary.noShow} icon={UserX} accent="text-destructive" />
+        <SummaryCard label="No asistió" value={summary.noShow} icon={UserX} accent="text-destructive" />
       </div>
 
       <Card className="border-white/70 bg-white/88">
