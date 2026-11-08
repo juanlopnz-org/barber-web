@@ -13,6 +13,8 @@ import { useCreateAppointment } from "@/modules/shared/hooks/use-create-appointm
 import { useAvailableSlots } from "@/modules/shared/hooks/use-available-slots";
 import { useSessionStore } from "@/store/session-store";
 import { useAuthSession } from "@/modules/auth/hooks/use-auth-session";
+import { BOOKING_HORIZON_DAYS } from "@/modules/shared/config/booking-window";
+import { shiftISODate, todayLocalISODate } from "@/modules/shared/lib/local-date";
 
 export interface BookingFormDefaults {
   name?: string;
@@ -44,16 +46,11 @@ export function BookingForm({
   const user = useSessionStore((state) => state.user);
   const { getErrorMessage } = useAuthSession();
 
-  // Guest bookings are limited to a 14-day window from today. Authenticated
-  // customers with an existing booking history can book further ahead.
-  const isGuest = !user.authenticated;
-  const today = new Date().toISOString().slice(0, 10);
-  const maxDate = (() => {
-    if (!isGuest) return undefined;
-    const d = new Date();
-    d.setDate(d.getDate() + 14);
-    return d.toISOString().slice(0, 10);
-  })();
+  // The booking horizon is the same for everybody (guests and authenticated
+  // customers): 14 days from today, local time. The API enforces the exact
+  // same window server-side.
+  const today = todayLocalISODate();
+  const maxDate = shiftISODate(today, BOOKING_HORIZON_DAYS);
 
   const [name, setName] = useState(defaults.name ?? (user.authenticated ? user.name ?? "" : ""));
   const [phone, setPhone] = useState(defaults.phone ?? "");
@@ -205,12 +202,9 @@ export function BookingForm({
               max={maxDate}
               onChange={(event) => setDate(event.target.value)}
             />
-            {isGuest && (
-              <p className="text-xs text-secondary">
-                Como invitado puedes reservar dentro de los próximos 14 días.
-                Crea una cuenta para reservar con más anticipación.
-              </p>
-            )}
+            <p className="text-xs text-secondary">
+              Puedes reservar hasta {BOOKING_HORIZON_DAYS} días antes.
+            </p>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">

@@ -31,7 +31,7 @@ export default function CustomerBookPage() {
               </span>
             </div>
           </div>
-          <div className="rounded-2xl bg-[#384959] p-4 text-white shadow-2xl md:p-5">
+          {/* <div className="rounded-2xl bg-[#384959] p-4 text-white shadow-2xl md:p-5">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-white/70">Tu última visita</p>
               <Clock3 className="h-5 w-5 text-primary" />
@@ -47,7 +47,7 @@ export default function CustomerBookPage() {
                 Con Carlos Mendez
               </div>
             </div>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 

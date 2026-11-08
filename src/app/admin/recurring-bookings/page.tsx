@@ -79,9 +79,6 @@ export default function AdminRecurringBookingsPage() {
           </h1>
           <p className="mt-2 text-secondary">
             Agenda clientes en horarios semanales que se repiten automáticamente.
-            Por ejemplo, todos los sábados a las 6:30pm con Carlos. El sistema
-            materializa las próximas semanas y deja que el cliente gestione las
-            suyas desde su panel.
           </p>
         </div>
         <Button onClick={() => setShowCreate(true)} size="lg">
@@ -409,9 +406,8 @@ function CancelDialog({
               ¿Cancelar la serie de {series.customerName ?? series.customerPhone}?
             </p>
             <p className="mt-1 text-secondary">
-              Las <strong>{series.upcomingCount} próximas citas</strong> BOOKED
-              se cancelarán. Las citas pasadas (COMPLETED / NO_SHOW / CANCELLED)
-              se conservan para mantener el historial.
+              Las <strong>{series.upcomingCount} próximas citas</strong>
+              se cancelarán.
             </p>
           </div>
         </div>

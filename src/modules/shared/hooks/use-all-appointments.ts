@@ -2,7 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/modules/shared/lib/api-client";
-import type { Appointment, AppointmentStatus } from "@/modules/shared/types";
+import type {
+  AppointmentStatus,
+  PaginatedAppointments,
+} from "@/modules/shared/types";
 
 /**
  * Filter shape accepted by GET /appointments. All fields are optional; the
@@ -17,6 +20,12 @@ export interface AllAppointmentsFilter {
   from?: string;
   /** ISO date or timestamp (exclusive upper bound on startTime). */
   to?: string;
+  /** 1-based page number. */
+  page?: number;
+  /** Rows per page (1-100). */
+  pageSize?: number;
+  /** Sort order by startTime. */
+  order?: "asc" | "desc";
 }
 
 function buildParams(filter: AllAppointmentsFilter): Record<string, string> {
@@ -26,6 +35,9 @@ function buildParams(filter: AllAppointmentsFilter): Record<string, string> {
   if (filter.status) params.status = filter.status;
   if (filter.from) params.from = filter.from;
   if (filter.to) params.to = filter.to;
+  if (filter.page !== undefined) params.page = String(filter.page);
+  if (filter.pageSize !== undefined) params.pageSize = String(filter.pageSize);
+  if (filter.order) params.order = filter.order;
   return params;
 }
 
@@ -33,12 +45,15 @@ function buildParams(filter: AllAppointmentsFilter): Record<string, string> {
  * Admin/Barber facing appointment list. Used by /admin/agenda and any other
  * surface that needs the full appointments table filtered by barbero / rango
  * / estado.
+ *
+ * Returns the paginated envelope: `{ items, total, page, pageSize,
+ * totalPages, summary }`.
  */
 export function useAllAppointments(filter: AllAppointmentsFilter = {}) {
   return useQuery({
     queryKey: ["appointments", "all", filter],
     queryFn: async () => {
-      const { data } = await api.get<Appointment[]>("/appointments", {
+      const { data } = await api.get<PaginatedAppointments>("/appointments", {
         params: buildParams(filter),
       });
       return data;

@@ -18,8 +18,8 @@ export default function GuestBookingPage() {
           title="Datos de la reserva"
         />
 
-        <div className="flex flex-col gap-5">
-          <Card className="flex flex-1 flex-col border-white/70 bg-[#384959] text-white">
+        {/* <div className="flex flex-col gap-5">
+          <Card className="flex flex-1 flex-col border-white/70 bg-[#384959]">
             <CardHeader>
               <CardTitle className="text-white">Resumen</CardTitle>
             </CardHeader>
@@ -51,12 +51,12 @@ export default function GuestBookingPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
       </div>
 
       <footer className="mt-6 flex flex-col items-center gap-2 border-t border-border pt-4 text-xs text-secondary md:flex-row md:justify-between">
         <span>Barber System · Reserva directa sin registro</span>
-        <span>Soporte 24/7 · WhatsApp +57 300 000 0000</span>
+        <span>Soporte 24/7 · WhatsApp +57 323 416 3580</span>
       </footer>
     </main>
   );

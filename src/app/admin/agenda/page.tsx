@@ -1,55 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import {
-  Calendar,
-  CheckCircle2,
-  Clock3,
-  Filter,
-  Loader2,
-  UserX,
-  XCircle,
-} from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { useState } from "react";
+import { Calendar, CheckCircle2, Clock3, Filter, Loader2, UserX, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Pagination } from "@/components/ui/Pagination";
 import { useAllAppointments } from "@/modules/shared/hooks/use-all-appointments";
-import {
-  useUpdateAppointmentStatus,
-  type OperationalStatus,
-} from "@/modules/shared/hooks/use-update-appointment-status";
 import { useBarbers } from "@/modules/shared/hooks/use-barbers";
 import { useServices } from "@/modules/shared/hooks/use-services";
+import { AppointmentActions } from "@/modules/shared/components/AppointmentActions";
+import {
+  APPOINTMENT_STATUS_BADGE,
+  APPOINTMENT_STATUS_FILTER_OPTIONS,
+  appointmentStatusLabel,
+} from "@/modules/shared/lib/appointment-status";
+import { shiftISODate, todayLocalISODate } from "@/modules/shared/lib/local-date";
 import type { Appointment, AppointmentStatus } from "@/modules/shared/types";
-
-const STATUS_LABELS: Record<AppointmentStatus, string> = {
-  BOOKED: "Confirmada",
-  OFFERED: "Ofrecida",
-  SWAP_PENDING: "Swap pendiente",
-  SWAP_MATCHED: "Swap listo",
-  TRANSFERRED: "Transferida",
-  COMPLETED: "Completada",
-  NO_SHOW: "No show",
-  CANCELLED: "Cancelada",
-};
-
-const STATUS_BADGE: Record<AppointmentStatus, string> = {
-  BOOKED: "bg-primary/15 text-primary",
-  OFFERED: "bg-warning/15 text-warning",
-  SWAP_PENDING: "bg-warning/20 text-warning",
-  SWAP_MATCHED: "bg-success/20 text-success",
-  TRANSFERRED: "bg-secondary/20 text-secondary",
-  COMPLETED: "bg-success/15 text-success",
-  NO_SHOW: "bg-destructive/15 text-destructive",
-  CANCELLED: "bg-destructive/10 text-destructive",
-};
-
-const STATUS_FILTER_OPTIONS: { value: AppointmentStatus | "ALL"; label: string }[] = [
-  { value: "ALL", label: "Todas" },
-  { value: "BOOKED", label: "Confirmadas" },
-  { value: "COMPLETED", label: "Completadas" },
-  { value: "CANCELLED", label: "Canceladas" },
-  { value: "NO_SHOW", label: "No show" },
-];
 
 /** Format an ISO timestamp as HH:MM in es-CO locale (24h). */
 function fmtTime(iso: string): string {
@@ -70,44 +35,40 @@ function fmtDate(iso: string): string {
 }
 
 /** Returns YYYY-MM-DD for today in local time, used as the default date filter. */
-function todayLocalISODate(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-/** Returns YYYY-MM-DD for a Date offset by `days` (negative = past). */
-function shiftISODate(baseISO: string, days: number): string {
-  const d = new Date(`${baseISO}T00:00:00`);
-  d.setDate(d.getDate() + days);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 export default function AdminAgendaPage() {
   // Default to today ± 7 days so the page shows the operational week
+  // Default to today ± 7 days so the page shows the operational week
   // immediately on load. Backend interprets `from`/`to` in UTC.
-  const [fromDate, setFromDate] = useState<string>(shiftISODate(todayLocalISODate(), -7));
-  const [toDate, setToDate] = useState<string>(shiftISODate(todayLocalISODate(), 7));
-  const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "ALL">("ALL");
-
-  const filter = useMemo(
-    () => ({
-      from: fromDate,
-      to: toDate,
-      ...(statusFilter !== "ALL" ? { status: statusFilter } : {}),
-    }),
-    [fromDate, toDate, statusFilter],
+  const [fromDate, setFromDate] = useState<string>(
+    shiftISODate(todayLocalISODate(), -7),
   );
+  const [toDate, setToDate] = useState<string>(
+    shiftISODate(todayLocalISODate(), 7),
+  );
+  const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "ALL">("ALL");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
-  const { data: appointments = [], isLoading } = useAllAppointments(filter);
+  const { data, isLoading } = useAllAppointments({
+    from: fromDate,
+    to: toDate,
+    ...(statusFilter !== "ALL" ? { status: statusFilter } : {}),
+    page,
+    pageSize,
+  });
   const { data: barbers = [] } = useBarbers();
   const { data: services = [] } = useServices();
-  const updateStatus = useUpdateAppointmentStatus();
+
+  const appointments = data?.items ?? [];
+  const total = data?.total ?? 0;
+  // The API computes the summary over the whole filtered set, so the KPI
+  // cards keep the same value while the user paginates.
+  const summary = data?.summary ?? {
+    booked: 0,
+    completed: 0,
+    cancelled: 0,
+    noShow: 0,
+  };
 
   const barberName = (id: string) => barbers.find((b) => b.id === id)?.name ?? "—";
   const serviceName = (id: string) => services.find((s) => s.id === id)?.name ?? "—";
@@ -117,17 +78,8 @@ export default function AdminAgendaPage() {
     return "Cliente";
   };
 
-  // Summary counters (computed from the same filtered list)
-  const summary = useMemo(() => {
-    const acc = { booked: 0, completed: 0, cancelled: 0, noShow: 0 };
-    for (const a of appointments) {
-      if (a.status === "BOOKED") acc.booked++;
-      else if (a.status === "COMPLETED") acc.completed++;
-      else if (a.status === "CANCELLED") acc.cancelled++;
-      else if (a.status === "NO_SHOW") acc.noShow++;
-    }
-    return acc;
-  }, [appointments]);
+  /** Any filter change invalidates the current page offset. */
+  const resetPage = () => setPage(1);
 
   return (
     <div className="space-y-6">
@@ -158,16 +110,33 @@ export default function AdminAgendaPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-end gap-3">
-            <DateField label="Desde" value={fromDate} onChange={setFromDate} />
-            <DateField label="Hasta" value={toDate} onChange={setToDate} />
+            <DateField
+              label="Desde"
+              value={fromDate}
+              onChange={(next) => {
+                setFromDate(next);
+                resetPage();
+              }}
+            />
+            <DateField
+              label="Hasta"
+              value={toDate}
+              onChange={(next) => {
+                setToDate(next);
+                resetPage();
+              }}
+            />
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-secondary">Estado</label>
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as AppointmentStatus | "ALL")}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as AppointmentStatus | "ALL");
+                  resetPage();
+                }}
                 className="h-9 rounded-xl border border-border bg-white/82 px-3 text-sm"
               >
-                {STATUS_FILTER_OPTIONS.map((opt) => (
+                {APPOINTMENT_STATUS_FILTER_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>
@@ -220,20 +189,15 @@ export default function AdminAgendaPage() {
                         <span
                           className={
                             "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold " +
-                            (STATUS_BADGE[apt.status] ?? "bg-muted text-secondary")
+                            (APPOINTMENT_STATUS_BADGE[apt.status] ??
+                              "bg-muted text-secondary")
                           }
                         >
-                          {STATUS_LABELS[apt.status]}
+                          {appointmentStatusLabel(apt.status)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <RowActions
-                          appointment={apt}
-                          pending={updateStatus.isPending}
-                          onMutate={(target) =>
-                            updateStatus.mutate({ appointmentId: apt.id, status: target })
-                          }
-                        />
+                        <AppointmentActions appointment={apt} />
                       </td>
                     </tr>
                   ))}
@@ -241,56 +205,19 @@ export default function AdminAgendaPage() {
               </table>
             </div>
           )}
+
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={(next) => {
+              setPageSize(next);
+              resetPage();
+            }}
+          />
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function RowActions({
-  appointment,
-  pending,
-  onMutate,
-}: {
-  appointment: Appointment;
-  pending: boolean;
-  onMutate: (target: OperationalStatus) => void;
-}) {
-  // Only BOOKED appointments admit operational transitions. The other states
-  // are terminal-ish for the admin UI.
-  if (appointment.status !== "BOOKED") {
-    return <span className="text-xs text-secondary">—</span>;
-  }
-  return (
-    <div className="inline-flex gap-1">
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={pending}
-        onClick={() => onMutate("COMPLETED")}
-        title="Marcar como completada"
-      >
-        <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Completar
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={pending}
-        onClick={() => onMutate("NO_SHOW")}
-        title="Marcar como no-show"
-      >
-        <UserX className="mr-1 h-3.5 w-3.5" /> No show
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={pending}
-        onClick={() => onMutate("CANCELLED")}
-        title="Cancelar la cita"
-        className="text-destructive hover:bg-destructive/10"
-      >
-        <XCircle className="mr-1 h-3.5 w-3.5" /> Cancelar
-      </Button>
     </div>
   );
 }

@@ -4,6 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useMyAppointments } from "@/modules/shared/hooks/use-my-appointments";
 import { useBarbers } from "@/modules/shared/hooks/use-barbers";
 import { useServices } from "@/modules/shared/hooks/use-services";
+import {
+  APPOINTMENT_STATUS_BADGE,
+  appointmentStatusLabel,
+} from "@/modules/shared/lib/appointment-status";
 
 export default function CustomerDashboardPage() {
   const { data: appointments = [], isLoading } = useMyAppointments();
@@ -35,13 +39,26 @@ export default function CustomerDashboardPage() {
                 key={a.id}
                 className="rounded-2xl border border-border bg-white/70 p-4"
               >
-                <p className="font-semibold text-foreground">{serviceName(a.serviceId)}</p>
-                <p className="text-sm text-secondary">
-                  {barberName(a.barberId)} · {new Date(a.startTime).toLocaleString("es-CO")}
-                </p>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-secondary">
-                  {a.status}
-                </p>
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-foreground">
+                      {serviceName(a.serviceId)}
+                    </p>
+                    <p className="text-sm text-secondary">
+                      {barberName(a.barberId)} ·{" "}
+                      {new Date(a.startTime).toLocaleString("es-CO")}
+                    </p>
+                  </div>
+                  <span
+                    className={
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold " +
+                      (APPOINTMENT_STATUS_BADGE[a.status] ??
+                        "bg-muted text-secondary")
+                    }
+                  >
+                    {appointmentStatusLabel(a.status)}
+                  </span>
+                </div>
               </div>
             ))
           )}
