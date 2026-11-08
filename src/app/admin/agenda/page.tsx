@@ -73,7 +73,8 @@ export default function AdminAgendaPage() {
   const barberName = (id: string) => barbers.find((b) => b.id === id)?.name ?? "—";
   const serviceName = (id: string) => services.find((s) => s.id === id)?.name ?? "—";
   const customerLabel = (apt: Appointment): string => {
-    if (apt.guestName) return `${apt.guestName} (invitado)`;
+    if (apt.customerName) return apt.customerName;
+    if (apt.guestName) return apt.guestName;
     if (apt.customerId) return `Cliente ${apt.customerId.slice(0, 8)}`;
     return "Cliente";
   };
