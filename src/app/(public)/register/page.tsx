@@ -299,7 +299,7 @@ function FormStep({
               Cambiar teléfono
             </Button>
             <Button
-              className="h-auto min-h-14 flex-1 px-10 py-4"
+              className="h-auto min-h-12 flex-1 px-10 py-2"
               size="lg"
               type="submit"
               disabled={isSubmitting}
