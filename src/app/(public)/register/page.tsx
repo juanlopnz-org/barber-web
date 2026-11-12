@@ -5,6 +5,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowRight, CheckCircle2, Loader2, Phone } from "lucide-react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -80,10 +81,11 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 py-8 lg:px-8">
-      <Card className="w-full max-w-4xl overflow-hidden border-white/70 bg-white/88">
+      <Card className="w-full max-w-4xl overflow-hidden border-white/10 bg-white/[0.04]">
         <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
-          <aside className="surface-muted border-b border-border p-8 lg:border-b-0 lg:border-r">
-            <p className="text-xs uppercase tracking-[0.24em] text-secondary">Registro</p>
+          <aside className="surface-muted border-b border-white/10 p-8 lg:border-b-0 lg:border-r">
+            <BrandLogo size={56} stacked />
+            <p className="mt-8 text-xs uppercase tracking-[0.24em] text-secondary">Registro</p>
             <h1 className="mt-4 text-4xl font-semibold leading-tight text-foreground">
               Primero tu teléfono.
             </h1>
@@ -122,7 +124,7 @@ export default function RegisterPage() {
 
             <p className="mt-6 text-center text-sm text-secondary">
               ¿Ya tienes cuenta?{" "}
-              <Link href="/login" className="font-semibold text-foreground hover:text-secondary">
+              <Link href="/login" className="font-semibold text-steel hover:text-foreground">
                 Inicia sesión
               </Link>
             </p>
@@ -327,8 +329,8 @@ function StepBadge({
   const tone = done
     ? "border-success/40 bg-success/15 text-success"
     : active
-      ? "border-primary bg-primary/10 text-primary"
-      : "border-border bg-white/70 text-secondary";
+      ? "border-steel/60 bg-steel-soft text-steel"
+      : "border-white/10 bg-white/[0.04] text-secondary";
   return (
     <li
       className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium ${tone}`}

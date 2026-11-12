@@ -5,6 +5,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Calendar, Phone, ShieldCheck } from "lucide-react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -37,8 +38,9 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto grid min-h-screen max-w-7xl items-center gap-10 px-4 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-      <div className="hidden rounded-[2rem] bg-[#384959] p-10 text-white shadow-2xl lg:block">
-        <p className="text-xs uppercase tracking-[0.24em] text-white/60">Acceso seguro</p>
+      <div className="hidden rounded-[2rem] border border-white/10 bg-graphite p-10 text-white shadow-2xl chrome-edge lg:block">
+        <BrandLogo size={64} stacked />
+        <p className="mt-8 text-xs uppercase tracking-[0.24em] text-white/50">Acceso seguro</p>
         <h1 className="mt-6 text-4xl font-semibold leading-tight">
           Entra con tu número de teléfono y contraseña.
         </h1>
@@ -48,29 +50,32 @@ export default function LoginPage() {
           vinculadas para que las reconozcas.
         </p>
         <div className="mt-10 space-y-4">
-          <div className="rounded-2xl bg-white/10 p-4">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
             <div className="flex items-center gap-3">
-              <Phone className="h-5 w-5 text-primary" />
+              <Phone className="h-5 w-5 text-steel" />
               <p className="font-medium">Login por teléfono (E.164)</p>
             </div>
           </div>
-          <div className="rounded-2xl bg-white/10 p-4">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
             <div className="flex items-center gap-3">
-              <ShieldCheck className="h-5 w-5 text-primary" />
+              <ShieldCheck className="h-5 w-5 text-steel" />
               <p className="font-medium">Sesión alineada con roles y estado `GUEST`</p>
             </div>
           </div>
-          <div className="rounded-2xl bg-white/10 p-4">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
             <div className="flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-primary" />
+              <Calendar className="h-5 w-5 text-steel" />
               <p className="font-medium">Tus citas previas se conservan al crear la cuenta</p>
             </div>
           </div>
         </div>
       </div>
 
-      <Card className="mx-auto w-full max-w-lg border-white/70 bg-white/88">
+      <Card className="mx-auto w-full max-w-lg border-white/10 bg-white/[0.04]">
         <CardHeader className="space-y-3 text-center">
+          <div className="mb-5 flex justify-center">
+            <BrandLogo size={52} stacked />
+          </div>
           <p className="text-xs uppercase tracking-[0.24em] text-secondary">Bienvenido</p>
           <CardTitle className="text-3xl">Iniciar sesión</CardTitle>
           <p className="text-sm leading-6 text-secondary">
@@ -135,7 +140,7 @@ export default function LoginPage() {
             </Button>
             <p className="text-center text-sm text-secondary">
               ¿No tienes cuenta?{" "}
-              <Link href="/register" className="font-semibold text-foreground hover:text-secondary">
+              <Link href="/register" className="font-semibold text-steel hover:text-foreground">
                 Crea tu perfil
               </Link>
             </p>

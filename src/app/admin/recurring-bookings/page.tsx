@@ -91,7 +91,7 @@ export default function AdminRecurringBookingsPage() {
           <Loader2 className="h-4 w-4 animate-spin" /> Cargando…
         </div>
       ) : recurring.length === 0 ? (
-        <Card className="border-white/70 bg-white/88">
+        <Card className="border-white/10 bg-white/[0.04]">
           <CardContent className="flex flex-col items-center justify-center gap-3 p-12 text-center text-secondary">
             <Repeat className="h-10 w-10 opacity-40" />
             <p className="text-sm">
@@ -162,7 +162,7 @@ function RecurringCard({
   onCancel: () => void;
 }) {
   return (
-    <Card className="border-white/70 bg-white/88">
+    <Card className="border-white/10 bg-white/[0.04]">
       <CardHeader className="space-y-2 border-b border-border pb-4">
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="flex items-center gap-2 text-base">
@@ -313,7 +313,7 @@ function CreateDialog({
             <select
               value={barberId}
               onChange={(e) => setBarberId(e.target.value)}
-              className="h-10 w-full rounded-xl border border-border bg-white/82 px-3 text-sm"
+              className="h-10 w-full rounded-xl border border-border bg-white/[0.04] px-3 text-sm"
             >
               {barbers.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -324,7 +324,7 @@ function CreateDialog({
             <select
               value={serviceId}
               onChange={(e) => setServiceId(e.target.value)}
-              className="h-10 w-full rounded-xl border border-border bg-white/82 px-3 text-sm"
+              className="h-10 w-full rounded-xl border border-border bg-white/[0.04] px-3 text-sm"
             >
               {services.map((s) => (
                 <option key={s.id} value={s.id}>{s.name} ({s.duration} min)</option>
@@ -338,7 +338,7 @@ function CreateDialog({
             <select
               value={dayOfWeek}
               onChange={(e) => setDayOfWeek(Number(e.target.value))}
-              className="h-10 w-full rounded-xl border border-border bg-white/82 px-3 text-sm"
+              className="h-10 w-full rounded-xl border border-border bg-white/[0.04] px-3 text-sm"
             >
               {DAY_LABELS.map((d, i) => (
                 <option key={d} value={i}>{d}</option>
@@ -489,7 +489,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   const { className, ...rest } = props;
   return (
     <input
-      className={`h-10 w-full rounded-xl border border-border bg-white/82 px-3 text-sm focus:border-primary focus:outline-none ${className ?? ""}`}
+      className={`h-10 w-full rounded-xl border border-border bg-white/[0.04] px-3 text-sm focus:border-steel/70 focus:outline-none ${className ?? ""}`}
       {...rest}
     />
   );
@@ -506,7 +506,7 @@ function ModalShell({
 }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/40 p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:items-center md:pb-4">
-      <Card className="flex w-full max-w-2xl max-h-[calc(100dvh-7rem)] flex-col border-white/70 bg-white shadow-2xl md:max-h-[calc(100dvh-4rem)]">
+      <Card className="flex w-full max-w-2xl max-h-[calc(100dvh-7rem)] flex-col border-white/10 bg-[#131922] shadow-2xl md:max-h-[calc(100dvh-4rem)]">
         <CardHeader className="flex flex-row items-center justify-between border-b border-border pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <CheckCircle2 className="h-5 w-5 text-primary" />

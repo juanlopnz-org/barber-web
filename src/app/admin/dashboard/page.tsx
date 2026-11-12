@@ -83,7 +83,7 @@ export default function AdminDashboardPage() {
         {KPI_CARDS.map((kpi) => {
           const Icon = kpi.icon;
           return (
-            <Card key={kpi.label} className="border-white/70 bg-white/88">
+            <Card key={kpi.label} className="border-white/10 bg-white/[0.04]">
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="rounded-2xl bg-accent p-3 text-foreground">
@@ -101,7 +101,7 @@ export default function AdminDashboardPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <Card className="border-white/70 bg-white/88">
+        <Card className="border-white/10 bg-white/[0.04]">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Próximas citas</CardTitle>
             <span className="text-xs font-medium text-secondary">
@@ -112,7 +112,7 @@ export default function AdminDashboardPage() {
             {upcomingAppointments.map((apt) => (
               <div
                 key={apt.id}
-                className="flex items-center justify-between rounded-2xl border border-border bg-white/82 p-4"
+                className="flex items-center justify-between rounded-2xl border border-border bg-white/[0.04] p-4"
               >
                 <div className="flex items-center gap-4">
                   <div className="rounded-2xl bg-accent px-3 py-2 text-sm font-semibold text-foreground">
@@ -141,7 +141,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-white/70 bg-[#384959] text-white">
+        <Card className="border-white/10 bg-graphite text-white">
           <CardHeader>
             <CardTitle className="text-white">Resumen mensual</CardTitle>
           </CardHeader>
@@ -164,7 +164,7 @@ export default function AdminDashboardPage() {
               Configura objetivos mensuales en la sección de Servicios para hacer seguimiento
               automático del equipo.
             </div>
-            <Button className="w-full bg-white text-foreground hover:bg-white/92">
+            <Button className="w-full bg-chrome text-[#0a0d12] hover:brightness-[1.06]">
               Ver reporte completo
             </Button>
           </CardContent>
@@ -172,7 +172,7 @@ export default function AdminDashboardPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-        <Card className="border-white/70 bg-white/88">
+        <Card className="border-white/10 bg-white/[0.04]">
           <CardHeader>
             <CardTitle>Top barberos</CardTitle>
             <p className="mt-2 text-sm text-secondary">
@@ -183,7 +183,7 @@ export default function AdminDashboardPage() {
             {topBarbers.map((barber, index) => (
               <div
                 key={barber.id}
-                className="flex items-center justify-between rounded-2xl border border-border bg-white/82 p-4"
+                className="flex items-center justify-between rounded-2xl border border-border bg-white/[0.04] p-4"
               >
                 <div className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-base font-semibold text-foreground">
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-white/70 bg-white/88">
+        <Card className="border-white/10 bg-white/[0.04]">
           <CardHeader>
             <CardTitle>Alertas operativas</CardTitle>
           </CardHeader>
@@ -219,7 +219,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 rounded-2xl border border-border bg-white/82 p-4">
+            <div className="flex items-start gap-3 rounded-2xl border border-border bg-white/[0.04] p-4">
               <TrendingUp className="mt-0.5 h-5 w-5 text-success" />
               <div>
                 <p className="font-semibold text-foreground">Pico de demanda el sábado</p>
@@ -228,7 +228,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 rounded-2xl border border-border bg-white/82 p-4">
+            <div className="flex items-start gap-3 rounded-2xl border border-border bg-white/[0.04] p-4">
               <DollarSign className="mt-0.5 h-5 w-5 text-primary" />
               <div>
                 <p className="font-semibold text-foreground">Servicio estrella del mes</p>

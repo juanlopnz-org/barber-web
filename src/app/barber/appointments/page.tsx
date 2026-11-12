@@ -52,7 +52,7 @@ export default function BarberAppointmentsPage() {
                 // A new filter invalidates the current page offset.
                 setPage(1);
               }}
-              className="h-9 rounded-xl border border-border bg-white/82 px-3 text-sm"
+              className="h-9 rounded-xl border border-border bg-white/[0.04] px-3 text-sm"
             >
               {APPOINTMENT_STATUS_FILTER_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>

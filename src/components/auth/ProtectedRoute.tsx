@@ -32,7 +32,7 @@ export function ProtectedRoute({
   if (!hasHydrated) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="rounded-2xl border border-border bg-white/85 px-6 py-4 text-sm text-secondary shadow-soft">
+        <div className="rounded-2xl border border-border bg-white/[0.04] px-6 py-4 text-sm text-secondary shadow-soft">
           Cargando sesión...
         </div>
       </div>

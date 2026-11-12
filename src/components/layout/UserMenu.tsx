@@ -51,7 +51,7 @@ export function UserMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Abrir menú de usuario"
-        className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/35 text-sm font-semibold text-foreground transition hover:bg-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-chrome-soft text-sm font-semibold text-foreground transition hover:border-steel/50 hover:bg-white/[0.12] focus:outline-none focus-visible:ring-2 focus-visible:ring-steel"
       >
         {initials}
       </button>
@@ -59,7 +59,7 @@ export function UserMenu() {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-12 z-30 w-56 origin-top-right overflow-hidden rounded-2xl border border-white/70 bg-white shadow-2xl"
+          className="absolute right-0 top-12 z-30 w-56 origin-top-right overflow-hidden rounded-2xl border border-white/10 bg-[#131922] shadow-2xl"
         >
           <div className="border-b border-border px-4 py-3">
             <p className="truncate text-sm font-semibold text-foreground">

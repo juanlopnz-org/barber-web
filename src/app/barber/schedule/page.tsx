@@ -318,7 +318,7 @@ export default function BarberSchedulePage() {
         {DAYS_OF_WEEK.map((day) => {
           const slots = schedulesByDay.get(day.value) ?? [];
           return (
-            <Card key={day.value} className="border-white/70 bg-white/88">
+            <Card key={day.value} className="border-white/10 bg-white/[0.04]">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center justify-between text-base">
                   <span>{day.label}</span>
@@ -331,14 +331,14 @@ export default function BarberSchedulePage() {
                 {loadingSchedules ? (
                   <div className="h-12 animate-pulse rounded-xl bg-muted/60" />
                 ) : slots.length === 0 ? (
-                  <p className="rounded-xl border border-dashed border-border bg-white/60 p-3 text-xs text-muted-foreground">
+                  <p className="rounded-xl border border-dashed border-border bg-white/[0.03] p-3 text-xs text-muted-foreground">
                     No atiendes este día
                   </p>
                 ) : (
                   slots.map((s) => (
                     <div
                       key={s.id}
-                      className="flex items-center justify-between rounded-xl border border-border bg-white/82 p-3"
+                      className="flex items-center justify-between rounded-xl border border-border bg-white/[0.04] p-3"
                     >
                       <div className="flex items-center gap-2">
                         <Clock3 className="h-4 w-4 text-primary" />
@@ -425,7 +425,7 @@ export default function BarberSchedulePage() {
           {loadingBlocks ? (
             <div className="h-12 animate-pulse rounded-xl bg-muted/60" />
           ) : upcomingBlocks.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border bg-white/60 p-4 text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-border bg-white/[0.03] p-4 text-sm text-muted-foreground">
               No tienes bloqueos próximos. Los clientes pueden reservar en
               cualquier horario dentro de tu jornada.
             </p>
@@ -448,7 +448,7 @@ export default function BarberSchedulePage() {
       {/* ---------------------- Dialog: Schedule ---------------------- */}
       <dialog
         ref={scheduleDialogRef}
-        className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
       >
         <form
           method="dialog"
@@ -462,7 +462,7 @@ export default function BarberSchedulePage() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Día de la semana</label>
             <select
-              className="flex h-11 w-full rounded-2xl border border-border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-ring"
+              className="flex h-11 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-sm outline-none focus:border-steel/70 focus:ring-4 focus:ring-ring"
               {...scheduleForm.register("dayOfWeek", { valueAsNumber: true })}
             >
               {DAYS_OF_WEEK.map((d) => (
@@ -503,7 +503,7 @@ export default function BarberSchedulePage() {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-white px-5 text-sm font-semibold hover:bg-accent"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold hover:bg-accent"
               onClick={() => scheduleDialogRef.current?.close()}
             >
               Cancelar
@@ -527,7 +527,7 @@ export default function BarberSchedulePage() {
       {/* ---------------------- Dialog: BlockedTime ---------------------- */}
       <dialog
         ref={blockDialogRef}
-        className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
       >
         <form
           method="dialog"
@@ -576,7 +576,7 @@ export default function BarberSchedulePage() {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-white px-5 text-sm font-semibold hover:bg-accent"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold hover:bg-accent"
               onClick={() => blockDialogRef.current?.close()}
             >
               Cancelar
@@ -616,7 +616,7 @@ function BlockedTimeRow({
     d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-border bg-white/82 p-3">
+    <div className="flex items-center justify-between rounded-xl border border-border bg-white/[0.04] p-3">
       <div className="flex items-center gap-3">
         <div className="rounded-xl bg-accent px-3 py-2 text-center">
           <p className="text-[10px] uppercase tracking-wide text-secondary">

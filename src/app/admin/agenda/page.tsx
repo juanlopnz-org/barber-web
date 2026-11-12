@@ -99,7 +99,7 @@ export default function AdminAgendaPage() {
         <SummaryCard label="No asistió" value={summary.noShow} icon={UserX} accent="text-destructive" />
       </div>
 
-      <Card className="border-white/70 bg-white/88">
+      <Card className="border-white/10 bg-white/[0.04]">
         <CardHeader className="flex flex-col gap-4 border-b border-border pb-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-1">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -135,7 +135,7 @@ export default function AdminAgendaPage() {
                   setStatusFilter(e.target.value as AppointmentStatus | "ALL");
                   resetPage();
                 }}
-                className="h-9 rounded-xl border border-border bg-white/82 px-3 text-sm"
+                className="h-9 rounded-xl border border-border bg-white/[0.04] px-3 text-sm"
               >
                 {APPOINTMENT_STATUS_FILTER_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -239,7 +239,7 @@ function DateField({
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-9 rounded-xl border border-border bg-white/82 px-3 text-sm"
+        className="h-9 rounded-xl border border-border bg-white/[0.04] px-3 text-sm"
       />
     </div>
   );
@@ -257,7 +257,7 @@ function SummaryCard({
   accent: string;
 }) {
   return (
-    <Card className="border-white/70 bg-white/88">
+    <Card className="border-white/10 bg-white/[0.04]">
       <CardContent className="flex items-center justify-between p-4">
         <div>
           <p className="text-xs text-secondary">{label}</p>

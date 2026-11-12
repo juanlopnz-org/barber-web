@@ -57,7 +57,7 @@ export function TimeSlotGrid({
     return (
       <div
         className={cn(
-          "flex items-start gap-2 rounded-2xl border border-dashed border-border bg-white/60 p-4 text-sm text-muted-foreground",
+          "flex items-start gap-2 rounded-2xl border border-dashed border-border bg-white/[0.03] p-4 text-sm text-muted-foreground",
           className,
         )}
         role="status"

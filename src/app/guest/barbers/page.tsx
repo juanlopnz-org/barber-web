@@ -1,6 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
+import { PublicHeader } from "@/components/brand/PublicHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { useBarbers } from "@/modules/shared/hooks/use-barbers";
@@ -9,7 +10,8 @@ export default function GuestBarbersPage() {
   const { data: barbers = [], isLoading } = useBarbers();
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+      <PublicHeader />
       <div className="mb-8">
         <p className="text-xs uppercase tracking-[0.24em] text-secondary">Guest</p>
         <h1 className="mt-3 text-4xl font-semibold text-foreground">Barberos disponibles</h1>
@@ -22,12 +24,12 @@ export default function GuestBarbersPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {barbers.map((barber) => (
-            <Card key={barber.id} className="border-white/70 bg-white/88">
+            <Card key={barber.id} className="border-white/10 bg-white/[0.04]">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>{barber.name}</CardTitle>
-                  <div className="flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm font-semibold text-foreground">
-                    <Star className="h-4 w-4 fill-current text-primary" />
+                  <div className="flex items-center gap-1 rounded-full border border-white/10 bg-chrome-soft px-3 py-1 text-sm font-semibold text-foreground">
+                    <Star className="h-4 w-4 fill-current text-steel" />
                     {barber.rating}
                   </div>
                 </div>
