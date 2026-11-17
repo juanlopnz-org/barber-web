@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Calendar, CalendarDays, Clock3, Home, Repeat, Scissors, ShieldCheck, Users } from "lucide-react";
+import { Calendar, CalendarDays, Clock3, Home, MessageCircle, Repeat, Scissors, ShieldCheck, Users } from "lucide-react";
 import type { Role } from "@/modules/shared/types";
 
 export type NavigationItem = {
@@ -80,6 +80,12 @@ export const navigationByRole: Record<Exclude<Role, "GUEST">, NavigationItem[]> 
       label: "Recurrentes",
       description: "Reservas semanales automáticas",
       icon: Repeat,
+    },
+    {
+      href: "/admin/whatsapp",
+      label: "WhatsApp",
+      description: "Recordatorios de cita",
+      icon: MessageCircle,
     },
   ],
 };
