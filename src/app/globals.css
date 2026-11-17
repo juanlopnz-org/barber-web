@@ -35,13 +35,6 @@
     --destructive: #e07070;
   }
 
-  /* Tailwind's `.flex` is an author rule and can override the browser's
-     `dialog:not([open]) { display: none }` rule. Keep every closed native
-     dialog out of the page until its controlled state opens it. */
-  dialog:not([open]) {
-    display: none;
-  }
-
   * {
     @apply border-border;
   }
@@ -240,4 +233,11 @@
     transform: translateX(50%);
     white-space: nowrap;
   }
+}
+
+/* Keep native dialogs hidden while closed. This must remain outside Tailwind
+   layers because utility classes such as `.flex` can otherwise win the
+   cascade over the browser's closed-dialog rule. */
+dialog:not([open]) {
+  display: none !important;
 }
