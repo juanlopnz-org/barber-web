@@ -228,7 +228,7 @@ export default function AdminServicesPage() {
         />
       </div>
 
-      <Card className="border-white/70 bg-white/88">
+      <Card className="border-white/10 bg-white/[0.04]">
         <CardHeader>
           <CardTitle>Servicios publicados</CardTitle>
         </CardHeader>
@@ -238,7 +238,7 @@ export default function AdminServicesPage() {
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
           ) : services.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border bg-white/60 p-4 text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-border bg-white/[0.03] p-4 text-sm text-muted-foreground">
               Aún no hay servicios. Crea el primero con el botón{" "}
               <strong>Nuevo servicio</strong>.
             </p>
@@ -262,7 +262,7 @@ export default function AdminServicesPage() {
       {/* Dialog */}
       <dialog
         ref={dialogRef}
-        className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
       >
         <form
           method="dialog"
@@ -335,7 +335,7 @@ export default function AdminServicesPage() {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-white px-5 text-sm font-semibold hover:bg-accent"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold hover:bg-accent"
               onClick={() => dialogRef.current?.close()}
             >
               Cancelar
@@ -376,7 +376,7 @@ function ServiceRow({
   busy: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white/82 p-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white/[0.04] p-4 md:flex-row md:items-center md:justify-between">
       <div className="space-y-1.5">
         <div className="flex flex-wrap items-center gap-2">
           <p className="font-semibold text-foreground">{service.name}</p>
@@ -438,7 +438,7 @@ function SummaryCard({
   hint: string;
 }) {
   return (
-    <Card className="border-white/70 bg-white/88">
+    <Card className="border-white/10 bg-white/[0.04]">
       <CardContent className="p-4">
         <p className="text-xs text-secondary">{label}</p>
         <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>

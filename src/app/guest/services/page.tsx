@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock3 } from "lucide-react";
+import { PublicHeader } from "@/components/brand/PublicHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useServices } from "@/modules/shared/hooks/use-services";
 
@@ -8,12 +9,13 @@ export default function GuestServicesPage() {
   const { data: services = [], isLoading } = useServices();
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 pb-10 lg:px-8">
+      <PublicHeader />
       <div className="mb-8">
         <p className="text-xs uppercase tracking-[0.24em] text-secondary">Guest</p>
         <h1 className="mt-3 text-4xl font-semibold text-foreground">Servicios y precios</h1>
         <p className="mt-3 max-w-2xl text-base leading-7 text-secondary">
-          Catálogo público inicial para el módulo de invitado, con jerarquía visual clara y tonos suaves.
+          Catálogo público inicial para el módulo de invitado, con jerarquía visual clara y detalles cromados.
         </p>
       </div>
       {isLoading ? (
@@ -21,7 +23,7 @@ export default function GuestServicesPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {services.map((service) => (
-            <Card key={service.id} className="border-white/70 bg-white/88">
+            <Card key={service.id} className="border-white/10 bg-white/[0.04]">
               <CardHeader>
                 <CardTitle>{service.name}</CardTitle>
               </CardHeader>

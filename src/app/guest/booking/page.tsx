@@ -1,9 +1,11 @@
+import { PublicHeader } from "@/components/brand/PublicHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { BookingForm } from "@/modules/booking/components/BookingForm";
 
 export default function GuestBookingPage() {
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-1rem)] max-w-7xl flex-col px-4 py-6 lg:px-8">
+    <main className="mx-auto flex min-h-[calc(100vh-1rem)] max-w-7xl flex-col px-4 pb-6 lg:px-8">
+      <PublicHeader />
       <div className="mb-5">
         <p className="text-xs uppercase tracking-[0.24em] text-secondary">Guest Booking</p>
         <h1 className="mt-2 text-3xl font-semibold text-foreground md:text-4xl">
@@ -36,7 +38,7 @@ export default function GuestBookingPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="border-white/70 bg-white/82">
+          <Card className="border-white/10 bg-[#131922]/82">
             <CardContent className="flex items-start gap-3 p-4">
               <div className="rounded-xl bg-success/15 p-2 text-success">
                 <Shield className="h-4 w-4" />

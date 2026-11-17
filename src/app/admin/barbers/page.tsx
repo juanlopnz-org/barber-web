@@ -171,7 +171,7 @@ export default function AdminBarbersPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <Card className="border-white/70 bg-white/88">
+        <Card className="border-white/10 bg-white/[0.04]">
           <CardContent className="p-5">
             <p className="text-sm text-secondary">Equipo total</p>
             <p className="mt-2 text-3xl font-semibold text-foreground">
@@ -180,14 +180,14 @@ export default function AdminBarbersPage() {
             <p className="mt-1 text-sm text-secondary">Profesionales registrados</p>
           </CardContent>
         </Card>
-        <Card className="border-white/70 bg-white/88">
+        <Card className="border-white/10 bg-white/[0.04]">
           <CardContent className="p-5">
             <p className="text-sm text-secondary">Activos</p>
             <p className="mt-2 text-3xl font-semibold text-success">{activeCount}</p>
             <p className="mt-1 text-sm text-secondary">Aceptando reservas</p>
           </CardContent>
         </Card>
-        <Card className="border-white/70 bg-white/88">
+        <Card className="border-white/10 bg-white/[0.04]">
           <CardContent className="p-5">
             <p className="text-sm text-secondary">Pausados</p>
             <p className="mt-2 text-3xl font-semibold text-warning">{inactiveCount}</p>
@@ -196,7 +196,7 @@ export default function AdminBarbersPage() {
         </Card>
       </section>
 
-      <Card className="border-white/70 bg-white/88">
+      <Card className="border-white/10 bg-white/[0.04]">
         <CardHeader>
           <CardTitle>Roster del equipo</CardTitle>
           <p className="mt-2 text-sm text-secondary">
@@ -209,14 +209,14 @@ export default function AdminBarbersPage() {
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
           ) : barbers.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border bg-white/60 p-4 text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-border bg-white/[0.03] p-4 text-sm text-muted-foreground">
               Aún no hay barberos registrados.
             </p>
           ) : (
             barbers.map((barber) => (
               <div
                 key={barber.id}
-                className="flex flex-col gap-4 rounded-2xl border border-border bg-white/82 p-5 md:flex-row md:items-center md:justify-between"
+                className="flex flex-col gap-4 rounded-2xl border border-border bg-white/[0.04] p-5 md:flex-row md:items-center md:justify-between"
               >
                 <div className="flex flex-1 items-start gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-base font-semibold text-foreground">
@@ -282,7 +282,7 @@ export default function AdminBarbersPage() {
 
       <dialog
         ref={dialogRef}
-        className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
       >
         <form
           method="dialog"
@@ -348,7 +348,7 @@ export default function AdminBarbersPage() {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-white px-5 text-sm font-semibold hover:bg-accent"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold hover:bg-accent"
               onClick={() => dialogRef.current?.close()}
             >
               Cancelar
@@ -369,7 +369,7 @@ export default function AdminBarbersPage() {
 
       <dialog
         ref={createDialogRef}
-        className="rounded-2xl border border-border bg-white p-0 shadow-2xl backdrop:bg-black/40"
+        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
       >
         <form
           method="dialog"
@@ -413,7 +413,7 @@ export default function AdminBarbersPage() {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-border bg-white px-5 text-sm font-semibold hover:bg-accent"
+              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold hover:bg-accent"
               onClick={() => createDialogRef.current?.close()}
             >
               Cancelar
@@ -427,7 +427,7 @@ export default function AdminBarbersPage() {
 
       <dialog
         open={createdCredentials !== null}
-        className="rounded-2xl border border-border bg-white p-6 shadow-2xl backdrop:bg-black/40"
+        className="rounded-2xl border border-white/10 bg-[#131922] p-6 shadow-2xl backdrop:bg-black/40"
         onClose={() => setCreatedCredentials(null)}
       >
         <h2 className="text-lg font-semibold">Cuenta creada</h2>

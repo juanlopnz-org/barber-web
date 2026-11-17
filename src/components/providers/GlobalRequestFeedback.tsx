@@ -28,7 +28,7 @@ export function GlobalRequestFeedback() {
         pauseOnHover
         newestOnTop
         limit={3}
-        theme="light"
+        theme="dark"
       />
       {activeRequests > 0 && (
         <div

@@ -13,7 +13,7 @@ export default function CustomerBookPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-white/70 bg-white/88">
+      <Card className="overflow-hidden border-white/10 bg-white/[0.04]">
         <CardContent className="grid gap-5 p-5 md:grid-cols-[1.15fr_0.85fr] md:items-center md:p-7">
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-[0.24em] text-secondary">Reserva con cuenta</p>

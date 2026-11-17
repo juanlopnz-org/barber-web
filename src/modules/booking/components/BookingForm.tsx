@@ -31,7 +31,7 @@ interface BookingFormProps {
 }
 
 const selectClasses =
-  "flex h-12 w-full rounded-2xl border border-border bg-white/80 px-4 text-sm text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-ring";
+  "flex h-12 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm text-foreground outline-none focus:border-steel/70 focus:ring-4 focus:ring-ring";
 
 export function BookingForm({
   defaults = {},
@@ -132,7 +132,7 @@ export function BookingForm({
   const isLoading = loadingBarbers || loadingServices || createAppointment.isPending;
 
   return (
-    <Card className="border-white/70 bg-white/88">
+    <Card className="border-white/10 bg-white/[0.04]">
       <CardHeader className="space-y-2">
         <CardTitle>{title}</CardTitle>
         {isPrefilled ? (
@@ -225,7 +225,7 @@ export function BookingForm({
               ) : null}
             </div>
             {!barberId || !serviceId || !date ? (
-              <p className="rounded-2xl border border-dashed border-border bg-white/60 p-4 text-sm text-muted-foreground">
+              <p className="rounded-2xl border border-dashed border-border bg-white/[0.03] p-4 text-sm text-muted-foreground">
                 Selecciona barbero, servicio y fecha para ver los horarios disponibles.
               </p>
             ) : (

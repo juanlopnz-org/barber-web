@@ -37,7 +37,7 @@ export default function CustomerDashboardPage() {
             appointments.map((a) => (
               <div
                 key={a.id}
-                className="rounded-2xl border border-border bg-white/70 p-4"
+                className="rounded-2xl border border-border bg-white/[0.04] p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
