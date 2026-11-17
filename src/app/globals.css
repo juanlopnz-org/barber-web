@@ -3,6 +3,12 @@
 
 @layer base {
   :root {
+    /* Dark UI. This also drives the native rendering of `<dialog>`
+       (canvas/canvastext colors), form controls and the scrollbars, so the
+       browser-drawn parts of the UI match the dark theme instead of
+       defaulting to black text on a light canvas. */
+    color-scheme: dark;
+
     /* Graphite base */
     --background: #0a0d12;
     --foreground: #e8edf4;

@@ -282,11 +282,11 @@ export default function AdminBarbersPage() {
 
       <dialog
         ref={dialogRef}
-        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
+        className="fixed bottom-auto left-1/2 right-auto top-1/2 m-0 w-[calc(100vw_-_2rem)] max-w-lg max-h-[calc(100dvh_-_2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/10 bg-[#131922] p-0 text-foreground shadow-2xl backdrop:bg-black/60"
       >
         <form
           method="dialog"
-          className="w-[28rem] max-w-[92vw] space-y-4 p-6"
+          className="w-full space-y-4 p-6"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <h2 className="text-lg font-semibold">Editar barbero</h2>
@@ -369,11 +369,11 @@ export default function AdminBarbersPage() {
 
       <dialog
         ref={createDialogRef}
-        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
+        className="fixed bottom-auto left-1/2 right-auto top-1/2 m-0 w-[calc(100vw_-_2rem)] max-w-lg max-h-[calc(100dvh_-_2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/10 bg-[#131922] p-0 text-foreground shadow-2xl backdrop:bg-black/60"
       >
         <form
           method="dialog"
-          className="w-[28rem] max-w-[92vw] space-y-4 p-6"
+          className="w-full space-y-4 p-6"
           onSubmit={createForm.handleSubmit(onCreate)}
         >
           <h2 className="text-lg font-semibold">Nuevo barbero</h2>
@@ -427,7 +427,7 @@ export default function AdminBarbersPage() {
 
       <dialog
         open={createdCredentials !== null}
-        className="rounded-2xl border border-white/10 bg-[#131922] p-6 shadow-2xl backdrop:bg-black/40"
+        className="fixed bottom-auto left-1/2 right-auto top-1/2 m-0 w-[calc(100vw_-_2rem)] max-w-lg max-h-[calc(100dvh_-_2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/10 bg-[#131922] p-6 text-foreground shadow-2xl backdrop:bg-black/60"
         onClose={() => setCreatedCredentials(null)}
       >
         <h2 className="text-lg font-semibold">Cuenta creada</h2>
