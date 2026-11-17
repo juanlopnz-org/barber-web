@@ -56,7 +56,7 @@ const NOT_READY_HINT: Record<string, string> = {
   DISCONNECTED:
     "El dispositivo se desconectó de WhatsApp. Espera a que vuelva a aparecer el código QR.",
   LOGGED_OUT:
-    "La sesión de WhatsApp está cerrada. Desvincula el número y vuelve a vincularlo.",
+    "La sesión de WhatsApp se cerró. El dispositivo se está registrando otra vez: en unos segundos aparecerá un QR nuevo para vincularlo.",
   CONNECTED:
     "El número ya está vinculado. Desvincúlalo antes de vincular otro.",
 };
@@ -69,9 +69,12 @@ export default function AdminWhatsappPage() {
   const statusQuery = useWhatsappStatus();
   const status = statusQuery.data;
 
-  // The QR is only worth polling while the device is waiting to be linked.
-  const awaitingLink =
-    status?.status === "QR_REQUIRED" || status?.status === "DISCONNECTED";
+  // The QR is worth polling whenever the device is not linked yet — that
+  // includes the "session closed" state, where the worker registers the
+  // device again and produces a fresh QR. The status has to be known
+  // first: the endpoint answers 400 while the device is not ready yet, and
+  // the query does not retry on its own.
+  const awaitingLink = status !== undefined && status.status !== "CONNECTED";
   const qrQuery = useWhatsappQr(awaitingLink);
 
   const pairingCode = useRequestWhatsappPairingCode();
@@ -189,6 +192,19 @@ export default function AdminWhatsappPage() {
                 <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                   {status!.lastError}
+                </div>
+              ) : null}
+
+              {status!.status === "LOGGED_OUT" ? (
+                <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>
+                    La sesión de WhatsApp se cerró (otra sesión tomó el
+                    control del número, o se revocó el vínculo). El
+                    dispositivo se está registrando otra vez: en unos
+                    segundos aparecerá un <strong>QR nuevo</strong> para
+                    vincularlo de nuevo.
+                  </span>
                 </div>
               ) : null}
 
