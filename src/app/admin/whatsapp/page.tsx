@@ -126,7 +126,12 @@ export default function AdminWhatsappPage() {
   const codeIsStale =
     Boolean(displayedCode) &&
     statusRefreshedAfterCode &&
-    status?.pairingValid === false;
+    status?.status !== "CONNECTED" &&
+    status?.pairingOutcome === "FAILED";
+  const codeWasCompleted =
+    Boolean(displayedCode) &&
+    statusRefreshedAfterCode &&
+    status?.pairingOutcome === "COMPLETED";
 
   return (
     <div className="space-y-6">
@@ -211,7 +216,9 @@ export default function AdminWhatsappPage() {
               {isConnected ? (
                 <div className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-                  El dispositivo está listo para enviar recordatorios.
+                  {status!.pairingOutcome === "COMPLETED"
+                    ? "El código fue confirmado y el dispositivo está listo para enviar recordatorios."
+                    : "El dispositivo está listo para enviar recordatorios."}
                 </div>
               ) : null}
             </>
@@ -299,7 +306,9 @@ export default function AdminWhatsappPage() {
                     className={`rounded-xl border p-4 text-center ${
                       codeIsStale
                         ? "border-amber-500/30 bg-amber-500/10"
-                        : "border-sky-500/30 bg-sky-500/10"
+                        : codeWasCompleted
+                          ? "border-emerald-500/30 bg-emerald-500/10"
+                          : "border-sky-500/30 bg-sky-500/10"
                     }`}
                   >
                     <p className="text-sm text-muted-foreground">
@@ -315,6 +324,12 @@ export default function AdminWhatsappPage() {
                       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                       Este código ya no sirve: la conexión con WhatsApp se
                       cortó o el código expiró. Solicita uno nuevo.
+                    </div>
+                  ) : codeWasCompleted ? (
+                    <div className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                      El código fue confirmado. El dispositivo está
+                      terminando de conectarse.
                     </div>
                   ) : (
                     <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-muted-foreground">

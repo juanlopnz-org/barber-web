@@ -14,6 +14,12 @@ export type WhatsappConnectionStatus =
   | "QR_REQUIRED"
   | "LOGGED_OUT";
 
+export type WhatsappPairingOutcome =
+  | "NONE"
+  | "PENDING"
+  | "COMPLETED"
+  | "FAILED";
+
 export interface WhatsappStatus {
   status: WhatsappConnectionStatus;
   connected: boolean;
@@ -21,6 +27,8 @@ export interface WhatsappStatus {
   lastError: string | null;
   /** The pairing attempt waiting for the phone, when there is one. */
   pairing: WhatsappPairingState | null;
+  /** Outcome of the last pairing attempt. */
+  pairingOutcome: WhatsappPairingOutcome;
   /**
    * Whether the pending pairing code can still be used.
    *
