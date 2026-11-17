@@ -38,9 +38,10 @@ export interface WhatsappPairingCode {
  * How often the connection status is polled while the device is not linked.
  *
  * Fast enough to notice that the admin just scanned the QR, slow enough to
- * stay cheap.
+ * stay cheap: the panel only needs to refresh every half minute to tell
+ * "waiting" from "linked".
  */
-const STATUS_POLL_INTERVAL_MS = 10_000;
+const STATUS_POLL_INTERVAL_MS = 30_000;
 
 /**
  * How often the status is polled once the device is linked.
@@ -56,7 +57,7 @@ const STATUS_POLL_INTERVAL_CONNECTED_MS = 60_000;
  * the current one, so polling faster than that only burns requests (each
  * call renders a PNG on the server).
  */
-const QR_POLL_INTERVAL_MS = 15_000;
+const QR_POLL_INTERVAL_MS = 20_000;
 
 // ----------------------------------------------------------------------------
 //  Queries
