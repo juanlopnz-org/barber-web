@@ -19,6 +19,22 @@ export interface WhatsappStatus {
   connected: boolean;
   phoneNumber: string | null;
   lastError: string | null;
+  /** The pairing attempt waiting for the phone, when there is one. */
+  pairing: WhatsappPairingState | null;
+  /**
+   * Whether the pending pairing code can still be used.
+   *
+   * A code is registered against the connection that requested it, so it
+   * stops working as soon as the socket drops (or when WhatsApp expires it).
+   */
+  pairingValid: boolean;
+}
+
+export interface WhatsappPairingState {
+  /** E.164 number the code was requested for, e.g. `+573001234567`. */
+  phoneNumber: string;
+  /** When the code was issued (epoch milliseconds). */
+  requestedAt: number;
 }
 
 export interface WhatsappQr {
@@ -27,7 +43,16 @@ export interface WhatsappQr {
 }
 
 export interface WhatsappPairingCode {
+  /** The 8-digit code to type on the phone. */
   code: string;
+  /**
+   * The exact number to type on the phone before the code.
+   *
+   * WhatsApp asks for the number first and rejects the code when it does not
+   * match the one the code was issued for.
+   */
+  phoneNumber: string;
+  requestedAt: number;
 }
 
 // ----------------------------------------------------------------------------
@@ -49,6 +74,14 @@ const STATUS_POLL_INTERVAL_MS = 30_000;
  * Nothing changes at that point, so the panel can settle down.
  */
 const STATUS_POLL_INTERVAL_CONNECTED_MS = 60_000;
+
+/**
+ * How often the status is polled while a pairing code is pending.
+ *
+ * A code only works while the connection that requested it stays up, so the
+ * panel has to notice quickly when it dies.
+ */
+const PAIRING_POLL_INTERVAL_MS = 5_000;
 
 /**
  * How often the pairing QR is refreshed.
@@ -88,9 +121,15 @@ export function useWhatsappStatus(options?: { refetchInterval?: number }) {
       // Poll faster while the device still needs to be linked, and settle
       // down once it is connected.
       const status = query.state.data?.status;
-      return status === "CONNECTED"
-        ? STATUS_POLL_INTERVAL_CONNECTED_MS
-        : STATUS_POLL_INTERVAL_MS;
+      if (status === "CONNECTED") {
+        return STATUS_POLL_INTERVAL_CONNECTED_MS;
+      }
+      // A pending pairing code is time-sensitive: the connection may drop at
+      // any moment and take the code with it.
+      if (query.state.data?.pairing) {
+        return PAIRING_POLL_INTERVAL_MS;
+      }
+      return STATUS_POLL_INTERVAL_MS;
     },
     staleTime: STATUS_POLL_INTERVAL_MS,
   });
@@ -137,6 +176,27 @@ export function useRequestWhatsappPairingCode() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["whatsapp", "status"] });
+    },
+  });
+}
+
+/**
+ * Discard the pending pairing attempt and start over.
+ *
+ * Drops the identity a failed pairing left behind and reconnects, so a fresh
+ * QR (and a fresh pairing code) becomes available.
+ */
+export function useResetWhatsappPairing() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post<{ reset: true }>(
+        "/admin/whatsapp/reset-pairing",
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["whatsapp"] });
     },
   });
 }

@@ -9,6 +9,7 @@ import {
   MessageCircle,
   QrCode,
   RefreshCw,
+  RotateCcw,
   Smartphone,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
   useRequestWhatsappPairingCode,
+  useResetWhatsappPairing,
   useWhatsappLogout,
   useWhatsappQr,
   useWhatsappStatus,
@@ -42,6 +44,23 @@ const STATUS_STYLE: Record<WhatsappConnectionStatus, string> = {
   LOGGED_OUT: "bg-red-500/15 text-red-300 border-red-500/30",
 };
 
+/**
+ * Why the device cannot be paired yet, in words the admin can act on.
+ *
+ * A pairing code is only accepted once the device registered itself with
+ * WhatsApp and is waiting for a phone; asking for it earlier is rejected.
+ */
+const NOT_READY_HINT: Record<string, string> = {
+  CONNECTING:
+    "El dispositivo todavía está conectando con WhatsApp. Espera a que aparezca el código QR.",
+  DISCONNECTED:
+    "El dispositivo se desconectó de WhatsApp. Espera a que vuelva a aparecer el código QR.",
+  LOGGED_OUT:
+    "La sesión de WhatsApp está cerrada. Desvincula el número y vuelve a vincularlo.",
+  CONNECTED:
+    "El número ya está vinculado. Desvincúlalo antes de vincular otro.",
+};
+
 // ----------------------------------------------------------------------------
 //  Page
 // ----------------------------------------------------------------------------
@@ -56,14 +75,30 @@ export default function AdminWhatsappPage() {
   const qrQuery = useWhatsappQr(awaitingLink);
 
   const pairingCode = useRequestWhatsappPairingCode();
+  const resetPairing = useResetWhatsappPairing();
   const logout = useWhatsappLogout();
 
   const [phoneNumber, setPhoneNumber] = useState("");
+  // Client-side timestamp of the moment the code reached the browser, used to
+  // tell "the code died" apart from "the status has not been refreshed yet".
+  const [codeReceivedAt, setCodeReceivedAt] = useState<number | null>(null);
+
+  const isConnected = status?.status === "CONNECTED";
+  const isReadyToPair = status?.status === "QR_REQUIRED";
 
   async function onRequestPairingCode(event: React.FormEvent) {
     event.preventDefault();
     if (!phoneNumber.trim()) return;
-    await pairingCode.mutateAsync(phoneNumber.trim());
+    const result = await pairingCode.mutateAsync(phoneNumber.trim());
+    setCodeReceivedAt(Date.now());
+    // The number that has to be typed on the phone is the normalized one.
+    setPhoneNumber(result.phoneNumber);
+  }
+
+  async function onResetPairing() {
+    await resetPairing.mutateAsync();
+    setCodeReceivedAt(null);
+    pairingCode.reset();
   }
 
   async function onLogout() {
@@ -77,7 +112,18 @@ export default function AdminWhatsappPage() {
     await logout.mutateAsync();
   }
 
-  const isConnected = status?.status === "CONNECTED";
+  const displayedCode = pairingCode.data?.code;
+
+  // The code stops working when the connection that registered it drops (or
+  // when WhatsApp expires it). The status has to be refreshed *after* the
+  // code arrived, otherwise a stale status would flag a brand new code.
+  const statusRefreshedAfterCode =
+    codeReceivedAt !== null &&
+    (statusQuery.dataUpdatedAt ?? 0) > codeReceivedAt;
+  const codeIsStale =
+    Boolean(displayedCode) &&
+    statusRefreshedAfterCode &&
+    status?.pairingValid === false;
 
   return (
     <div className="space-y-6">
@@ -213,7 +259,9 @@ export default function AdminWhatsappPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={pairingCode.isPending || !phoneNumber.trim()}
+                  disabled={
+                    pairingCode.isPending || !phoneNumber.trim() || !isReadyToPair
+                  }
                 >
                   {pairingCode.isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -222,18 +270,54 @@ export default function AdminWhatsappPage() {
                 </Button>
               </form>
 
+              {!isReadyToPair && status ? (
+                <p className="text-xs text-muted-foreground">
+                  {NOT_READY_HINT[status.status] ??
+                    "El dispositivo todavía no está listo para vincularse."}
+                </p>
+              ) : null}
+
               {pairingCode.data?.code ? (
-                <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-4 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Ingresa este código en el teléfono:
-                  </p>
-                  <p className="mt-2 font-mono text-2xl font-bold tracking-[0.3em] text-sky-200">
-                    {pairingCode.data.code}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    WhatsApp → Dispositivos vinculados → Vincular con número de
-                    teléfono
-                  </p>
+                <div className="space-y-3">
+                  <div
+                    className={`rounded-xl border p-4 text-center ${
+                      codeIsStale
+                        ? "border-amber-500/30 bg-amber-500/10"
+                        : "border-sky-500/30 bg-sky-500/10"
+                    }`}
+                  >
+                    <p className="text-sm text-muted-foreground">
+                      Ingresa este código en el teléfono:
+                    </p>
+                    <p className="mt-2 font-mono text-2xl font-bold tracking-[0.3em] text-sky-200">
+                      {pairingCode.data.code}
+                    </p>
+                  </div>
+
+                  {codeIsStale ? (
+                    <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                      Este código ya no sirve: la conexión con WhatsApp se
+                      cortó o el código expiró. Solicita uno nuevo.
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-muted-foreground">
+                      <p>
+                        En el teléfono: WhatsApp →{" "}
+                        <strong>Dispositivos vinculados</strong> →{" "}
+                        <strong>Vincular con número de teléfono</strong>.
+                      </p>
+                      <p className="mt-2">
+                        Escribe primero el número{" "}
+                        <strong className="text-foreground">
+                          {pairingCode.data.phoneNumber}
+                        </strong>{" "}
+                        (con el código de país) y después el código de 8
+                        dígitos. Si el número no coincide, WhatsApp responde
+                        «código incorrecto».
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : null}
 
@@ -243,6 +327,24 @@ export default function AdminWhatsappPage() {
                   No se pudo generar el código de emparejamiento.
                 </div>
               ) : null}
+
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={onResetPairing}
+                disabled={resetPairing.isPending}
+              >
+                {resetPairing.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                )}
+                Reiniciar vinculación
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Descarta el intento de emparejamiento actual y genera un
+                código QR y un código nuevos.
+              </p>
             </CardContent>
           </Card>
         </div>
