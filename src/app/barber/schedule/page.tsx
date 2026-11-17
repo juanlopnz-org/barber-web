@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +15,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Field, Modal } from "@/components/ui/Modal";
 import { useSessionStore } from "@/store/session-store";
 import {
   useBlockedTimes,
@@ -131,11 +133,11 @@ export default function BarberSchedulePage() {
   const deleteBlock = useDeleteBlockedTime(barberId ?? "");
 
   // ---------------------------------------------------------------------------
-  //  Dialog refs (native <dialog>)
+  //  Modal state
   // ---------------------------------------------------------------------------
 
-  const scheduleDialogRef = useRef<HTMLDialogElement | null>(null);
-  const blockDialogRef = useRef<HTMLDialogElement | null>(null);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [blockModalOpen, setBlockModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(
     null,
   );
@@ -160,7 +162,7 @@ export default function BarberSchedulePage() {
       startTime: "09:00",
       endTime: "18:00",
     });
-    scheduleDialogRef.current?.showModal();
+    setScheduleModalOpen(true);
   }
 
   function openEditSchedule(s: Schedule) {
@@ -170,7 +172,7 @@ export default function BarberSchedulePage() {
       startTime: minutesToClock(s.startMinutes),
       endTime: minutesToClock(s.endMinutes),
     });
-    scheduleDialogRef.current?.showModal();
+    setScheduleModalOpen(true);
   }
 
   async function onSubmitSchedule(values: ScheduleFormValues) {
@@ -188,7 +190,7 @@ export default function BarberSchedulePage() {
       } else {
         await createSchedule.mutateAsync(payload);
       }
-      scheduleDialogRef.current?.close();
+      setScheduleModalOpen(false);
     } catch (err) {
       scheduleForm.setError("root", { message: getErrorMessage(err) });
     }
@@ -215,7 +217,7 @@ export default function BarberSchedulePage() {
       endTime: "13:00",
       reason: "",
     });
-    blockDialogRef.current?.showModal();
+    setBlockModalOpen(true);
   }
 
   async function onSubmitBlock(values: BlockedTimeFormValues) {
@@ -233,7 +235,7 @@ export default function BarberSchedulePage() {
         endTime,
         reason: values.reason?.trim() || undefined,
       });
-      blockDialogRef.current?.close();
+      setBlockModalOpen(false);
     } catch (err) {
       blockForm.setError("root", { message: getErrorMessage(err) });
     }
@@ -445,70 +447,29 @@ export default function BarberSchedulePage() {
         </CardContent>
       </Card>
 
-      {/* ---------------------- Dialog: Schedule ---------------------- */}
-      <dialog
-        ref={scheduleDialogRef}
-        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
-      >
-        <form
-          method="dialog"
-          className="w-[28rem] max-w-[92vw] space-y-4 p-6"
-          onSubmit={scheduleForm.handleSubmit(onSubmitSchedule)}
-        >
-          <h2 className="text-lg font-semibold">
-            {editingSchedule ? "Editar bloque de horario" : "Nuevo bloque de horario"}
-          </h2>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Día de la semana</label>
-            <select
-              className="flex h-11 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-sm outline-none focus:border-steel/70 focus:ring-4 focus:ring-ring"
-              {...scheduleForm.register("dayOfWeek", { valueAsNumber: true })}
-            >
-              {DAYS_OF_WEEK.map((d) => (
-                <option key={d.value} value={d.value}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Hora inicio</label>
-              <Input type="time" {...scheduleForm.register("startTime")} />
-              {scheduleForm.formState.errors.startTime ? (
-                <p className="text-xs text-destructive">
-                  {scheduleForm.formState.errors.startTime.message}
-                </p>
-              ) : null}
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Hora fin</label>
-              <Input type="time" {...scheduleForm.register("endTime")} />
-              {scheduleForm.formState.errors.endTime ? (
-                <p className="text-xs text-destructive">
-                  {scheduleForm.formState.errors.endTime.message}
-                </p>
-              ) : null}
-            </div>
-          </div>
-
-          {scheduleForm.formState.errors.root ? (
-            <p className="text-sm text-destructive">
-              {scheduleForm.formState.errors.root.message}
-            </p>
-          ) : null}
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
+      <Modal
+        open={scheduleModalOpen}
+        onClose={() => setScheduleModalOpen(false)}
+        title={
+          editingSchedule
+            ? "Editar bloque de horario"
+            : "Nuevo bloque de horario"
+        }
+        icon={<CalendarDays className="h-5 w-5" />}
+        onSubmit={scheduleForm.handleSubmit(onSubmitSchedule)}
+        footer={
+          <>
+            <Button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold hover:bg-accent"
-              onClick={() => scheduleDialogRef.current?.close()}
+              variant="outline"
+              onClick={() => setScheduleModalOpen(false)}
             >
               Cancelar
-            </button>
-            <Button type="submit" disabled={createSchedule.isPending || updateSchedule.isPending}>
+            </Button>
+            <Button
+              type="submit"
+              disabled={createSchedule.isPending || updateSchedule.isPending}
+            >
               {createSchedule.isPending || updateSchedule.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -520,67 +481,60 @@ export default function BarberSchedulePage() {
                 "Crear bloque"
               )}
             </Button>
-          </div>
-        </form>
-      </dialog>
-
-      {/* ---------------------- Dialog: BlockedTime ---------------------- */}
-      <dialog
-        ref={blockDialogRef}
-        className="rounded-2xl border border-white/10 bg-[#131922] p-0 shadow-2xl backdrop:bg-black/40"
+          </>
+        }
       >
-        <form
-          method="dialog"
-          className="w-[28rem] max-w-[92vw] space-y-4 p-6"
-          onSubmit={blockForm.handleSubmit(onSubmitBlock)}
-        >
-          <h2 className="text-lg font-semibold">Nuevo bloqueo</h2>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Fecha</label>
-            <Input type="date" min={todayIso} {...blockForm.register("date")} />
-          </div>
+        <div className="space-y-4">
+          <Field label="Día de la semana">
+            <Select
+              {...scheduleForm.register("dayOfWeek", { valueAsNumber: true })}
+            >
+              {DAYS_OF_WEEK.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Hora inicio</label>
-              <Input type="time" {...blockForm.register("startTime")} />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Hora fin</label>
-              <Input type="time" {...blockForm.register("endTime")} />
-              {blockForm.formState.errors.endTime ? (
-                <p className="text-xs text-destructive">
-                  {blockForm.formState.errors.endTime.message}
-                </p>
-              ) : null}
-            </div>
+            <Field
+              label="Hora inicio"
+              error={scheduleForm.formState.errors.startTime?.message}
+            >
+              <Input type="time" {...scheduleForm.register("startTime")} />
+            </Field>
+            <Field
+              label="Hora fin"
+              error={scheduleForm.formState.errors.endTime?.message}
+            >
+              <Input type="time" {...scheduleForm.register("endTime")} />
+            </Field>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Motivo (opcional)
-            </label>
-            <Input
-              placeholder="Almuerzo, reunión, vacaciones…"
-              {...blockForm.register("reason")}
-            />
-          </div>
-
-          {blockForm.formState.errors.root ? (
+          {scheduleForm.formState.errors.root ? (
             <p className="text-sm text-destructive">
-              {blockForm.formState.errors.root.message}
+              {scheduleForm.formState.errors.root.message}
             </p>
           ) : null}
+        </div>
+      </Modal>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <button
+      <Modal
+        open={blockModalOpen}
+        onClose={() => setBlockModalOpen(false)}
+        title="Nuevo bloqueo"
+        icon={<Clock3 className="h-5 w-5" />}
+        onSubmit={blockForm.handleSubmit(onSubmitBlock)}
+        footer={
+          <>
+            <Button
               type="button"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold hover:bg-accent"
-              onClick={() => blockDialogRef.current?.close()}
+              variant="outline"
+              onClick={() => setBlockModalOpen(false)}
             >
               Cancelar
-            </button>
+            </Button>
             <Button type="submit" disabled={createBlock.isPending}>
               {createBlock.isPending ? (
                 <>
@@ -591,9 +545,40 @@ export default function BarberSchedulePage() {
                 "Crear bloqueo"
               )}
             </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Field label="Fecha">
+            <Input type="date" min={todayIso} {...blockForm.register("date")} />
+          </Field>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Hora inicio">
+              <Input type="time" {...blockForm.register("startTime")} />
+            </Field>
+            <Field
+              label="Hora fin"
+              error={blockForm.formState.errors.endTime?.message}
+            >
+              <Input type="time" {...blockForm.register("endTime")} />
+            </Field>
           </div>
-        </form>
-      </dialog>
+
+          <Field label="Motivo (opcional)">
+            <Input
+              placeholder="Almuerzo, reunión, vacaciones…"
+              {...blockForm.register("reason")}
+            />
+          </Field>
+
+          {blockForm.formState.errors.root ? (
+            <p className="text-sm text-destructive">
+              {blockForm.formState.errors.root.message}
+            </p>
+          ) : null}
+        </div>
+      </Modal>
     </div>
   );
 }
