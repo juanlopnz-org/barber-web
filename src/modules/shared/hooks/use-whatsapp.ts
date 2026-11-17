@@ -31,6 +31,34 @@ export interface WhatsappPairingCode {
 }
 
 // ----------------------------------------------------------------------------
+//  Polling cadence
+// ----------------------------------------------------------------------------
+
+/**
+ * How often the connection status is polled while the device is not linked.
+ *
+ * Fast enough to notice that the admin just scanned the QR, slow enough to
+ * stay cheap.
+ */
+const STATUS_POLL_INTERVAL_MS = 10_000;
+
+/**
+ * How often the status is polled once the device is linked.
+ *
+ * Nothing changes at that point, so the panel can settle down.
+ */
+const STATUS_POLL_INTERVAL_CONNECTED_MS = 60_000;
+
+/**
+ * How often the pairing QR is refreshed.
+ *
+ * WhatsApp rotates the QR every ~20 seconds and the endpoint always returns
+ * the current one, so polling faster than that only burns requests (each
+ * call renders a PNG on the server).
+ */
+const QR_POLL_INTERVAL_MS = 15_000;
+
+// ----------------------------------------------------------------------------
 //  Queries
 // ----------------------------------------------------------------------------
 
@@ -39,15 +67,31 @@ export interface WhatsappPairingCode {
  *
  * The backend keeps the device alive on its own, so this is polled to
  * surface the state (and any error) to the administrator.
+ *
+ * The request is a background poll: `feedback: false` keeps it from
+ * triggering the global loading indicator and a toast on every tick.
  */
 export function useWhatsappStatus(options?: { refetchInterval?: number }) {
   return useQuery({
     queryKey: ["whatsapp", "status"],
     queryFn: async () => {
-      const { data } = await api.post<WhatsappStatus>("/admin/whatsapp/status");
+      const { data } = await api.post<WhatsappStatus>(
+        "/admin/whatsapp/status",
+        undefined,
+        { feedback: false },
+      );
       return data;
     },
-    refetchInterval: options?.refetchInterval ?? 15_000,
+    refetchInterval: (query) => {
+      if (options?.refetchInterval) return options.refetchInterval;
+      // Poll faster while the device still needs to be linked, and settle
+      // down once it is connected.
+      const status = query.state.data?.status;
+      return status === "CONNECTED"
+        ? STATUS_POLL_INTERVAL_CONNECTED_MS
+        : STATUS_POLL_INTERVAL_MS;
+    },
+    staleTime: STATUS_POLL_INTERVAL_MS,
   });
 }
 
@@ -61,11 +105,16 @@ export function useWhatsappQr(enabled = true) {
   return useQuery({
     queryKey: ["whatsapp", "qr"],
     queryFn: async () => {
-      const { data } = await api.post<WhatsappQr>("/admin/whatsapp/qr");
+      const { data } = await api.post<WhatsappQr>(
+        "/admin/whatsapp/qr",
+        undefined,
+        { feedback: false },
+      );
       return data;
     },
     enabled,
-    refetchInterval: enabled ? 5_000 : false,
+    refetchInterval: enabled ? QR_POLL_INTERVAL_MS : false,
+    staleTime: QR_POLL_INTERVAL_MS,
     retry: false,
   });
 }

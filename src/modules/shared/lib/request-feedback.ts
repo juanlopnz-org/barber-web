@@ -71,6 +71,8 @@ export function getSuccessMessage(method: HttpMethod, url?: string) {
   if (path.includes("services") && method === "post") return "El servicio fue creado correctamente.";
   if (path.includes("services") && method === "patch") return "El servicio fue actualizado.";
   if (path.includes("services") && method === "delete") return "El servicio fue eliminado.";
+  if (path.includes("whatsapp/pairing-code")) return "El código de emparejamiento fue generado.";
+  if (path.includes("whatsapp/logout")) return "El número de WhatsApp fue desvinculado.";
   return "Los cambios se guardaron correctamente.";
 }
 
